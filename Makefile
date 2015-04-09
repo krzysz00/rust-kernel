@@ -35,9 +35,9 @@ build:
 	mkdir -p $@
 
 ${DEPDIR}/libcore.rlib: i686-unknown-elf.json
-	${RUSTC} ${RUSTFLAGS_CORE} --crate-type=lib -o $@ ${DEPDIR}/<libcore/lib.rs
+	${RUSTC} ${RUSTFLAGS_CORE} --crate-type=lib -o $@ ${DEPDIR}/libcore/lib.rs
 
-librlibc.rlib: rlibc.rs build
+librlibc.rlib: rlibc.rs ${DEPDIR}/libcore.rlib build
 	${RUSTC} ${RUSTFLAGS} --crate-type=rlib --crate-name=rlibc $<
 
 %.o: %.S build
@@ -49,14 +49,14 @@ librlibc.rlib: rlibc.rs build
 asmcode.a: ${OFILES}
 	${AR} cr ${ODIR}/$@ $(addprefix ${ODIR}/,$(filter-out mbr.o,${OFILES}))
 
-rustcode.a: asmcode.a ${RUSTFILES} i686-unknown-elf.json
+librustcode.a: librlibc.rlib asmcode.a ${RUSTFILES} i686-unknown-elf.json
 	${RUSTC} ${RUSTFLAGS} ${SRCDIR}/lib.rs
 
-%: asmcode.a rustcode.a
+kernel: asmcode.a librustcode.a
 	${LD} -N -m elf_i386 -e start -Ttext=0x7c00 -o ${ODIR}/kernel ${ODIR}/mbr.o $(addprefix ${ODIR}/,$?)
 
 %.bin: %
-	${OBJCOPY} -O binary $< ${ODIR}/$@
+	${OBJCOPY} -O binary ${ODIR}/$< ${ODIR}/$@
 
 %.img: %.bin
-	${DD} if=$< of=${ODIR}/$@ bs=512 conv=sync
+	${DD} if=${ODIR}/$< of=${ODIR}/$@ bs=512 conv=sync

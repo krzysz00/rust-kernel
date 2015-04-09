@@ -22,8 +22,9 @@ set_up_segments:
         mov %ax, %ss
 set_up_stack:
         movl $stack_here, %esp
-        call kMain
-        hlt // This puts the processor to sleep
+        call k_main
+loop:
+        jmp loop
 end:
         .skip 4096
 stack_here:
