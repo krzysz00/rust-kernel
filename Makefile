@@ -32,7 +32,7 @@ clean:
 	 rm -rfv ${ODIR}/
 
 ${ODIR}/.timestamp:
-	mkdir -p $@ && touch $@
+	mkdir -p ${ODIR} && touch $@
 
 ${DEPDIR}/libcore.rlib: i686-unknown-elf.json
 	${RUSTC} ${RUSTFLAGS_CORE} --crate-type=lib -o $@ ${DEPDIR}/libcore/lib.rs
