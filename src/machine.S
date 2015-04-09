@@ -1,6 +1,6 @@
 	# outb(int port, int val)
-	.global outb
-outb:
+	.global _outb
+_outb:
 	push %edx
 	mov 8(%esp),%dx
 	mov 12(%esp),%al
@@ -9,8 +9,8 @@ outb:
 	ret
 
 	# int inb(int port)
-	.global inb
-inb:
+	.global _inb
+_inb:
 	push %edx
 	mov 8(%esp),%dx
 	inb %dx,%al
@@ -19,8 +19,8 @@ inb:
 	ret
 
 	# unsigned long inb(int port)
-	.global inl
-inl:
+	.global _inl
+_inl:
 	push %edx
 	mov 8(%esp),%dx
 	inl %dx,%eax
@@ -31,8 +31,8 @@ inl:
 	#
 	# void ltr(uint32_t tr)
 	#
-	.global ltr
-ltr:
+	.global _ltr
+_ltr:
 	mov 4(%esp),%eax
 	ltr %ax
 	ret

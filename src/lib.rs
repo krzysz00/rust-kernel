@@ -8,17 +8,23 @@
 extern crate core;
 
 use core::prelude::*;
+use core::mem;
 
 extern crate rlibc;
 
 mod machine;
 mod vga;
+mod mmu;
+mod idt;
 
 use vga::Color::*;
+
+pub use idt::{idtDesc};
 
 #[lang="start"]
 #[no_mangle]
 pub fn k_main() {
+    idt::init();
     for i in 0..vga::ROWS {
         for j in 0..vga::COLS {
             vga::write_char_with_color(i, j, ' ', White, LightBlue);

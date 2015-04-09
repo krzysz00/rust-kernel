@@ -11,12 +11,3 @@ gdtEnd:
 gdtDesc:
         .word (gdtEnd - gdt)
         .long gdt
-
-idt:
-        .rept 256
-        .long 0, 0
-        .endr
-idtEnd:
-idtDesc:
-        .word (idtEnd - idt)
-        .long idt

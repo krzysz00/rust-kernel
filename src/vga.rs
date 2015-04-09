@@ -19,8 +19,8 @@ pub enum Color {
 
 use machine;
 
-pub static ROWS: usize = 25;
-pub static COLS: usize = 80;
+pub const ROWS: usize = 25;
+pub const COLS: usize = 80;
 
 fn set_vga_u8(offset: usize, val: u8) {
     unsafe {
@@ -64,14 +64,14 @@ pub fn write_char_with_color(row: usize, col: usize, letter: char,
 }
 
 pub fn move_cursor(row: usize, col: usize) {
-    static VGA_CMD: u16 = 0x3d4;
-    static VGA_DATA: u16 = 0x3d5;
+    const VGA_CMD: u16 = 0x3d4;
+    const VGA_DATA: u16 = 0x3d5;
     let cursor_offset = (row * COLS + col) as u16;
     let lsb = (cursor_offset & 0xFF) as u8;
     let msb = (cursor_offset >> 8) as u8;
 
-    machine::write_port(VGA_CMD, 0x0f);
-    machine::write_port(VGA_DATA, lsb);
-    machine::write_port(VGA_CMD, 0x0e);
-    machine::write_port(VGA_DATA, msb);
+    machine::outb(VGA_CMD, 0x0f);
+    machine::outb(VGA_DATA, lsb);
+    machine::outb(VGA_CMD, 0x0e);
+    machine::outb(VGA_DATA, msb);
 }
