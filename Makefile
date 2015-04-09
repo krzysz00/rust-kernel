@@ -1,6 +1,5 @@
 .PHONY: all
 .PHONY: clean
-.PHONY: dirs
 
 ODIR = build
 SRCDIR = src
@@ -32,27 +31,26 @@ all: kernel.img
 clean:
 	 rm -rfv ${ODIR}/
 
-dirs: ${ODIR}
-
-${ODIR}:
-	mkdir -p $@
+${ODIR}/.timestamp:
+	mkdir -p $@ && touch $@
 
 ${DEPDIR}/libcore.rlib: i686-unknown-elf.json
 	${RUSTC} ${RUSTFLAGS_CORE} --crate-type=lib -o $@ ${DEPDIR}/libcore/lib.rs
 
-librlibc.rlib: rlibc.rs ${DEPDIR}/libcore.rlib build
+librlibc.rlib: rlibc.rs ${DEPDIR}/libcore.rlib | ${ODIR}/.timestamp
 	${RUSTC} ${RUSTFLAGS} --crate-type=rlib --crate-name=rlibc $<
 
-%.o: %.S build
+%.o: %.S | ${ODIR}/.timestamp
+	echo $?
 	${CC} ${ASFLAGS} -c -o ${ODIR}/$@ $<
 
-%.o: %.s build
+%.o: %.s | ${ODIR}/.timestamp
 	${CC} ${ASFLAGS} -c -o $@ $<
 
 libasmcode.a: ${OFILES}
 	${AR} cr ${ODIR}/$@ $(addprefix ${ODIR}/,$(filter-out mbr.o,${OFILES}))
 
-librustcode.a: librlibc.rlib libasmcode.a ${RUSTFILES} i686-unknown-elf.json
+librustcode.a: ${RUSTFILES} librlibc.rlib libasmcode.a
 	${RUSTC} ${RUSTFLAGS} ${SRCDIR}/lib.rs
 
 kernel: libasmcode.a librustcode.a
