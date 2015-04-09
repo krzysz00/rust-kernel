@@ -24,15 +24,17 @@ pub use idt::{idtDesc};
 #[no_mangle]
 pub fn k_main() {
     idt::init();
+    let greet = "Hello from bare-bones Rust";
+
     for i in 0..vga::ROWS {
         for j in 0..vga::COLS {
             vga::write_char_with_color(i, j, ' ', White, LightBlue);
         }
     }
-    vga::set_color(0, 0, White, LightGreen);
-    vga::write_char(10, 10, 'd');
+    vga::paint_color(0, 0, 30, White, LightGreen);
+    vga::write_string(10, 5, greet);
+    vga::write_string_with_color(11, 10, "Test", Black, LightRed);
     vga::move_cursor(5, 77);
-    loop {}
 }
 
 #[lang = "stack_exhausted"] extern fn stack_exhausted() {}

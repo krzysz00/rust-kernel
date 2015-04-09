@@ -1,3 +1,4 @@
+#[derive(Copy, Clone)]
 pub enum Color {
     Black      = 0,
     Blue       = 1,
@@ -18,6 +19,8 @@ pub enum Color {
 }
 
 use machine;
+
+use core::prelude::*;
 
 pub const ROWS: usize = 25;
 pub const COLS: usize = 80;
@@ -61,6 +64,26 @@ pub fn write_char_with_color(row: usize, col: usize, letter: char,
     let offset = (row * COLS) + col;
     let code = (char_code & 0xFF) | (color_code << 8);
     set_vga_u16(offset, code);
+}
+
+pub fn write_string(row: usize, col: usize, string: &'static str) {
+    for (i, chr) in string.chars().enumerate() {
+        write_char(row, col + i, chr);
+    }
+}
+
+pub fn paint_color(row: usize, col: usize, len: usize,
+                   foregnd: Color, backgnd: Color) {
+    for i in 0..len {
+        set_color(row, col + i, foregnd, backgnd);
+    }
+}
+
+pub fn write_string_with_color(row: usize, col: usize, string: &'static str,
+                               foregnd: Color, backgnd: Color) {
+    for (i, chr) in string.chars().enumerate() {
+        write_char_with_color(row, col + i, chr, foregnd, backgnd);
+    }
 }
 
 pub fn move_cursor(row: usize, col: usize) {
