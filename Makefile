@@ -31,7 +31,8 @@ ASFLAGS += -m32
 all: kernel.img
 
 clean:
-	 rm -rfv ${ODIR}/
+	echo "test" ${RUSTFILES}
+	rm -rfv ${ODIR}/
 
 ${ODIR}/.timestamp:
 	mkdir -p ${ODIR} && touch $@

@@ -1,5 +1,6 @@
         .globl gdtDesc
-        .globl idtDesc
+        .extern idtDesc
+        .globl lidt2
 gdt:
         .long 0, 0
         .long 0x0000FFFF, 0x00CF9a00
@@ -11,3 +12,6 @@ gdtEnd:
 gdtDesc:
         .word (gdtEnd - gdt)
         .long gdt
+
+lidt2:
+        lidt idtDesc

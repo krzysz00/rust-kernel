@@ -8,7 +8,6 @@
 extern crate core;
 
 use core::prelude::*;
-use core::mem;
 
 extern crate rlibc;
 
