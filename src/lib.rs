@@ -11,6 +11,7 @@ use core::prelude::*;
 
 extern crate rlibc;
 
+mod machine;
 mod vga;
 
 use vga::Color::*;
@@ -25,6 +26,7 @@ pub fn k_main() {
     }
     vga::set_color(0, 0, White, LightGreen);
     vga::write_char(10, 10, 'd');
+    vga::move_cursor(5, 77);
     loop {}
 }
 

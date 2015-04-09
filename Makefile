@@ -1,5 +1,6 @@
 .PHONY: all
 .PHONY: clean
+.PHONY: dirs
 
 ODIR = build
 SRCDIR = src
@@ -31,7 +32,9 @@ all: kernel.img
 clean:
 	 rm -rfv ${ODIR}/
 
-build:
+dirs: ${ODIR}
+
+${ODIR}:
 	mkdir -p $@
 
 ${DEPDIR}/libcore.rlib: i686-unknown-elf.json
@@ -46,14 +49,14 @@ librlibc.rlib: rlibc.rs ${DEPDIR}/libcore.rlib build
 %.o: %.s build
 	${CC} ${ASFLAGS} -c -o $@ $<
 
-asmcode.a: ${OFILES}
+libasmcode.a: ${OFILES}
 	${AR} cr ${ODIR}/$@ $(addprefix ${ODIR}/,$(filter-out mbr.o,${OFILES}))
 
-librustcode.a: librlibc.rlib asmcode.a ${RUSTFILES} i686-unknown-elf.json
+librustcode.a: librlibc.rlib libasmcode.a ${RUSTFILES} i686-unknown-elf.json
 	${RUSTC} ${RUSTFLAGS} ${SRCDIR}/lib.rs
 
-kernel: asmcode.a librustcode.a
-	${LD} -N -m elf_i386 -e start -Ttext=0x7c00 -o ${ODIR}/kernel ${ODIR}/mbr.o $(addprefix ${ODIR}/,$?)
+kernel: libasmcode.a librustcode.a
+	${LD} -N -m elf_i386 -e start -Ttext=0x7c00 -o ${ODIR}/kernel ${ODIR}/mbr.o --start-group $(addprefix ${ODIR}/,$?) --end-group
 
 %.bin: %
 	${OBJCOPY} -O binary ${ODIR}/$< ${ODIR}/$@

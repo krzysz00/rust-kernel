@@ -17,6 +17,8 @@ pub enum Color {
     White      = 15,
 }
 
+use machine;
+
 pub static ROWS: usize = 25;
 pub static COLS: usize = 80;
 
@@ -59,4 +61,17 @@ pub fn write_char_with_color(row: usize, col: usize, letter: char,
     let offset = (row * COLS) + col;
     let code = (char_code & 0xFF) | (color_code << 8);
     set_vga_u16(offset, code);
+}
+
+pub fn move_cursor(row: usize, col: usize) {
+    static VGA_CMD: u16 = 0x3d4;
+    static VGA_DATA: u16 = 0x3d5;
+    let cursor_offset = (row * COLS + col) as u16;
+    let lsb = (cursor_offset & 0xFF) as u8;
+    let msb = (cursor_offset >> 8) as u8;
+
+    machine::write_port(VGA_CMD, 0x0f);
+    machine::write_port(VGA_DATA, lsb);
+    machine::write_port(VGA_CMD, 0x0e);
+    machine::write_port(VGA_DATA, msb);
 }
