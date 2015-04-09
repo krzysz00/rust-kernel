@@ -35,6 +35,7 @@ pub fn k_main() {
     vga::write_string(10, 5, greet);
     vga::write_string_with_color(11, 10, "Test", Black, LightRed);
     vga::move_cursor(5, 77);
+    loop {};
 }
 
 #[lang = "stack_exhausted"] extern fn stack_exhausted() {}

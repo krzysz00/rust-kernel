@@ -10,6 +10,8 @@ vpath %.rs deps
 vpath %.S src
 vpath % build
 
+RUSTSRC = deps/rust/
+
 RUSTC = rustc
 RUSTFLAGS_CORE = --target=i686-unknown-elf.json --cfg arch__x86
 RUSTFLAGS += --out-dir=${ODIR}/ -L${ODIR} -g -C opt-level=3 --extern core=${DEPDIR}/libcore.rlib ${RUSTFLAGS_CORE}
@@ -38,7 +40,7 @@ ${ODIR}/.timestamp:
 	mkdir -p ${ODIR} && touch $@
 
 ${DEPDIR}/libcore.rlib: i686-unknown-elf.json
-	${RUSTC} ${RUSTFLAGS_CORE} --crate-type=lib -o $@ ${DEPDIR}/libcore/lib.rs
+	${RUSTC} ${RUSTFLAGS_CORE} --crate-type=lib -o $@ ${RUSTSRC}/src/libcore/lib.rs
 
 librlibc.rlib: rlibc.rs ${DEPDIR}/libcore.rlib | ${ODIR}/.timestamp
 	${RUSTC} ${RUSTFLAGS} --crate-type=rlib --crate-name=rlibc $<
