@@ -12,7 +12,6 @@ use core::prelude::*;
 use alloc::boxed::Box;
 
 extern crate rlibc;
-extern crate rlibm;
 
 mod machine;
 mod vga;

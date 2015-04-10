@@ -2,12 +2,9 @@ const HEAP_START: usize = 0x00100000;
 const HEAP_END: usize = 0x00EFFFFF;
 
 use core;
+use rlibc;
 
 static mut heap_ptr: usize = HEAP_START;
-
-extern {
-    fn memcpy(dest: *mut u8, src: *const u8, n: usize) -> *mut u8;
-}
 
 #[no_mangle]
 pub unsafe extern fn rust_allocate(size: usize, align: usize) -> *mut u8 {
@@ -29,7 +26,7 @@ pub unsafe extern fn rust_allocate(size: usize, align: usize) -> *mut u8 {
 pub unsafe extern fn rust_reallocate(ptr: *mut u8, old_size: usize, size: usize, align: usize) -> *mut u8 {
     let new_ptr = rust_allocate(size, align);
     if !ptr.is_null() {
-        memcpy(ptr, new_ptr, old_size);
+        rlibc::memcpy(ptr, new_ptr, old_size);
     }
     ptr
 }
