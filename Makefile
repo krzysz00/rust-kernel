@@ -18,7 +18,7 @@ RUSTC = rustc
 RUSTFLAGS_CORE = --target=i686-unknown-elf.json
 RUSTFLAGS += --out-dir=${ODIR}/ -L${ODIR} -g -C opt-level=3 --extern core=${DEPDIR}/libcore.rlib ${RUSTFLAGS_CORE}
 
-CFLAGS += -m32 -nostdlib -nostdinc -g -O3 -Wall -Werror
+CFLAGS += -m32 -nostdlib -nostdinc -g -O3 -Wall -Werror -fdata-sections -ffunction-sections
 
 RUSTFILES = $(notdir $(wildcard ${SRCDIR}/*.rs))
 SFILES = $(notdir $(wildcard ${SRCDIR}/*.S) $(wildcard ${SRCDIR}/*.s))
@@ -70,7 +70,7 @@ librustcode.a: ${RUSTFILES} librlibc.rlib librlibm.rlib liballoc.rlib
 	${RUSTC} ${RUSTFLAGS} ${SRCDIR}/lib.rs
 
 kernel: ${AFILES}
-	${LD} -N -m elf_i386 -e start -Ttext=0x7c00 -o ${ODIR}/kernel ${ODIR}/mbr.o --start-group $(addprefix ${ODIR}/,${AFILES}) --end-group -L /usr/lib/gcc/x86_64-linux-gnu/4.9/32 -lgcc
+	${LD} --gc-sections -N -m elf_i386 -e start -Ttext=0x7c00 -o ${ODIR}/kernel ${ODIR}/mbr.o --start-group $(addprefix ${ODIR}/,${AFILES}) --end-group -L /usr/lib/gcc/x86_64-linux-gnu/4.9/32 -lgcc
 
 %.bin: %
 	${OBJCOPY} -O binary ${ODIR}/$< ${ODIR}/$@

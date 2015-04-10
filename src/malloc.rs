@@ -12,9 +12,9 @@ extern {
 #[no_mangle]
 pub unsafe extern fn rust_allocate(size: usize, align: usize) -> *mut u8 {
     let mut new_heap_ptr = heap_ptr;
-    // if heap_ptr % align != 0 {
-    //     new_heap_ptr += (align - (heap_ptr % align));
-    // }
+    if (heap_ptr % align) as usize != 0 {
+        new_heap_ptr += (align - (heap_ptr % align));
+    }
 
     if new_heap_ptr + size >= HEAP_END {
         core::ptr::null_mut()
