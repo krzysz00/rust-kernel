@@ -44,7 +44,13 @@ libcore.rlib: i686-unknown-elf.json
 	${RUSTC} ${RUSTFLAGS_LIBS} ${RUSTSRC}/src/libcore/lib.rs
 
 liballoc.rlib: libcore.rlib
-	${RUSTC} ${RUSTFLAGS_LIBS} --cfg feature=\"external_funcs\" --crate-type=lib --crate-name=alloc ${RUSTSRC}/src/liballoc/lib.rs
+	${RUSTC} ${RUSTFLAGS_LIBS} --cfg feature=\"external_funcs\" ${RUSTSRC}/src/liballoc/lib.rs
+
+libunicode.rlib: libcore.rlib
+	${RUSTC} ${RUSTFLAGS_LIBS} ${RUSTSRC}/src/libunicode/lib.rs
+
+libcollections.rlib: liballoc.rlib libunicode.rlib
+	${RUSTC} ${RUSTFLAGS_LIBS} ${RUSTSRC}/src/libcollections/lib.rs
 
 librlibc.rlib: rlibc.rs libcore.rlib
 	${RUSTC} ${RUSTFLAGS_LIBS} $<
