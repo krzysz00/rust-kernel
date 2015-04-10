@@ -15,7 +15,7 @@ vpath % build
 RUSTSRC = deps/rust/
 
 RUSTC = rustc
-RUSTFLAGS_CORE = --target=i686-unknown-elf.json --cfg arch__x86
+RUSTFLAGS_CORE = --target=i686-unknown-elf.json
 RUSTFLAGS += --out-dir=${ODIR}/ -L${ODIR} -g -C opt-level=3 --extern core=${DEPDIR}/libcore.rlib ${RUSTFLAGS_CORE}
 
 CFLAGS += -m32 -nostdlib -nostdinc -g -O3 -Wall -Werror
@@ -45,6 +45,9 @@ ${ODIR}/.timestamp:
 ${DEPDIR}/libcore.rlib: i686-unknown-elf.json
 	${RUSTC} ${RUSTFLAGS_CORE} --crate-type=lib -o $@ ${RUSTSRC}/src/libcore/lib.rs
 
+liballoc.rlib: ${DEPDIR}/libcore.rlib | ${ODIR}/.timestamp
+	${RUSTC} ${RUSTFLAGS} --cfg feature=\"external_funcs\" --crate-type=lib --crate-name=alloc ${RUSTSRC}/src/liballoc/lib.rs
+
 librlibc.rlib: rlibc.rs ${DEPDIR}/libcore.rlib | ${ODIR}/.timestamp
 	${RUSTC} ${RUSTFLAGS} --crate-type=rlib --crate-name=rlibc $<
 
@@ -63,7 +66,7 @@ librlibm.rlib: rlibm.rs ${DEPDIR}/libcore.rlib | ${ODIR}/.timestamp
 libasmcode.a: ${OFILES}
 	${AR} cr ${ODIR}/$@ $(addprefix ${ODIR}/,$(filter-out mbr.o,${OFILES}))
 
-librustcode.a: ${RUSTFILES} librlibc.rlib librlibm.rlib libasmcode.a
+librustcode.a: ${RUSTFILES} librlibc.rlib librlibm.rlib liballoc.rlib
 	${RUSTC} ${RUSTFLAGS} ${SRCDIR}/lib.rs
 
 kernel: ${AFILES}
