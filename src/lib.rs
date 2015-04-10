@@ -10,6 +10,7 @@ extern crate core;
 use core::prelude::*;
 
 extern crate rlibc;
+extern crate rlibm;
 
 mod machine;
 mod vga;
@@ -53,3 +54,10 @@ pub fn k_main() {
 #[lang = "stack_exhausted"] extern fn stack_exhausted() {}
 #[lang = "eh_personality"] extern fn eh_personality() {}
 #[lang = "panic_fmt"] fn panic_fmt() -> ! { loop {} }
+
+#[no_mangle]
+#[allow(non_snake_case)]
+pub fn _Unwind_Resume()
+{
+        loop{}
+}
