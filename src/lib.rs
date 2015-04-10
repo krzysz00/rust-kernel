@@ -1,4 +1,4 @@
-#![feature(no_std,lang_items,asm,core)]
+#![feature(no_std,lang_items,asm,core,alloc)]
 #![no_std]
 
 #![crate_type="staticlib"]
@@ -6,8 +6,10 @@
 
 #[macro_use]
 extern crate core;
+extern crate alloc;
 
 use core::prelude::*;
+use alloc::boxed::Box;
 
 extern crate rlibc;
 extern crate rlibm;
@@ -24,7 +26,8 @@ use vga::Color::*;
 pub use idt::{idtDesc};
 pub use interrupts::{double_fault_handler, gpf_handler,
                      kbd_interrupt_handler };
-pub use malloc::{rust_allocate, };
+pub use malloc::{rust_allocate, rust_reallocate, rust_reallocate_inplace,
+                 rust_deallocate, rust_usable_size, rust_stats_print };
 
 #[lang="start"]
 #[no_mangle]
@@ -48,6 +51,8 @@ pub fn k_main() {
                 :: "N"(0x50)
         }
     }
+
+    let heap: Box<i32> = Box::new(5);
     loop {};
 }
 
