@@ -8,12 +8,13 @@ DEPDIR = deps
 vpath %.rs src
 vpath %.rs deps
 vpath %.S src
+vpath %.s src
 vpath % build
 
 RUSTSRC = deps/rust/
 
 RUSTC = rustc
-RUSTFLAGS_CORE = --target=i686-unknown-elf.json --cfg arch__x86
+RUSTFLAGS_CORE = --target=i686-unknown-elf.json
 RUSTFLAGS += --out-dir=${ODIR}/ -L${ODIR} -g -C opt-level=3 --extern core=${DEPDIR}/libcore.rlib ${RUSTFLAGS_CORE}
 
 RUSTFILES = $(notdir $(wildcard ${SRCDIR}/*.rs))
