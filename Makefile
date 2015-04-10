@@ -33,7 +33,6 @@ ASFLAGS += -m32
 all: kernel.img
 
 clean:
-	echo "test" ${RUSTFILES}
 	rm -rfv ${ODIR}/
 
 ${ODIR}/.timestamp:

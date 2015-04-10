@@ -19,6 +19,11 @@ pub fn init() {
         idtDesc.limit = (size_of::<Descriptor>() * IDT_COUNT - 1) as u16;
         idtDesc.base = &idt as *const Descriptor as u32;
         lidt2();
-        idt[0].set_trap_descriptor(0x08, 0x9b00, 0);
+    }
+}
+
+pub fn register_interrupt(number: usize, handler: unsafe extern fn()) {
+    unsafe {
+        idt[number].set_trap_descriptor(0x08, handler as u32, 0);
     }
 }

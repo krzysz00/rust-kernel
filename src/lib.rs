@@ -15,15 +15,19 @@ mod machine;
 mod vga;
 mod mmu;
 mod idt;
+mod interrupts;
 
 use vga::Color::*;
 
 pub use idt::{idtDesc};
+pub use interrupts::{double_fault_handler, gpf_handler,
+                     kbd_interrupt_handler };
 
 #[lang="start"]
 #[no_mangle]
 pub fn k_main() {
     idt::init();
+    interrupts::init();
     let greet = "Hello from bare-bones Rust";
 
     for i in 0..vga::ROWS {
@@ -33,8 +37,14 @@ pub fn k_main() {
     }
     vga::paint_color(0, 0, 30, White, LightGreen);
     vga::write_string(10, 5, greet);
+    vga::move_cursor(10, 5 + greet.len());
     vga::write_string_with_color(11, 10, "Test", Black, LightRed);
-    vga::move_cursor(5, 77);
+    // unsafe {
+    //     asm! {
+    //         "int $0\n"
+    //             :: "N"(0x50)
+    //     }
+    // }
     loop {};
 }
 

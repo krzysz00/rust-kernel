@@ -60,7 +60,7 @@ impl Descriptor {
 
     pub fn set_offset(&mut self, v: u32) {
         mms(&mut self.f0, v, 15, 0);
-        mms(&mut self.f1, v >> 16, 31, 16)
+        mms(&mut self.f1, v >> 16, 19, 16)
     }
 
     pub fn set_trap_descriptor(&mut self, selector: u32, offset: u32, dpl: u32) {
