@@ -13,7 +13,7 @@ pub struct TableDescriptor {
 fn mask(left_bit: u32, right_bit: u32) -> u32 {
     let left_bit2 = left_bit & 0x1f;
     let right_bit2 = right_bit & 0x1f;
-    let n = left_bit2 + right_bit2 - 1;
+    let n = left_bit2 - right_bit2 + 1;
     ((1 << n) - 1) << right_bit2
 }
 

@@ -39,12 +39,12 @@ pub fn k_main() {
     vga::write_string(10, 5, greet);
     vga::move_cursor(10, 5 + greet.len());
     vga::write_string_with_color(11, 10, "Test", Black, LightRed);
-    // unsafe {
-    //     asm! {
-    //         "int $0\n"
-    //             :: "N"(0x50)
-    //     }
-    // }
+    unsafe {
+        asm! {
+            "int $0\n"
+                :: "N"(0x50)
+        }
+    }
     loop {};
 }
 
