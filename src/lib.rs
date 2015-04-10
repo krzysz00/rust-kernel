@@ -16,12 +16,14 @@ mod vga;
 mod mmu;
 mod idt;
 mod interrupts;
+mod malloc;
 
 use vga::Color::*;
 
 pub use idt::{idtDesc};
 pub use interrupts::{double_fault_handler, gpf_handler,
                      kbd_interrupt_handler };
+pub use malloc::{rust_allocate, };
 
 #[lang="start"]
 #[no_mangle]
