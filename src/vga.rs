@@ -25,17 +25,19 @@ use core::prelude::*;
 pub const ROWS: usize = 25;
 pub const COLS: usize = 80;
 
+// TODO: Re-enable this once something pulls in bounds checking
+// static mut vga_mem: *mut [u8; ROWS * COLS * 2] = 0xb8000 as *mut [u8; ROWS * COLS * 2];
+// static mut vga_mem_long: *mut [u16; ROWS * COLS] = 0xb8000 as *mut [u16; ROWS * COLS];
+
 fn set_vga_u8(offset: usize, val: u8) {
     unsafe {
-        let ptr = (0xb8000 + offset) as *mut u8;
-        *ptr = val;
+        *(0xb8000 as *mut u8).offset(offset as isize) = val;
     }
 }
 
 fn set_vga_u16(offset: usize, val: u16) {
     unsafe {
-        let ptr = (0xb8000 + (offset * 2)) as *mut u16;
-        *ptr = val;
+        *(0xb8000 as *mut u16).offset(offset as isize) = val;
     }
 }
 
