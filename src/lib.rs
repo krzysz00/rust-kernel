@@ -1,4 +1,4 @@
-#![feature(no_std,lang_items,asm,core,alloc,collections)]
+#![feature(no_std,lang_items,asm,core,alloc)]
 #![no_std]
 
 #![crate_type="staticlib"]
@@ -7,7 +7,6 @@
 #[macro_use]
 extern crate core;
 extern crate alloc;
-extern crate collections;
 
 use core::prelude::*;
 use alloc::boxed::Box;

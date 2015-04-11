@@ -32,17 +32,17 @@ pub unsafe extern fn rust_reallocate(ptr: *mut u8, old_size: usize, size: usize,
 }
 
 
-#[allow(unused_varibles)]
+#[allow(unused_variables)]
 #[no_mangle]
 pub extern fn rust_reallocate_inplace(ptr: *mut u8, old_size: usize, size: usize, align: usize) -> usize {
     old_size
 }
 
-#[allow(unused_varibles)]
+#[allow(unused_variables)]
 #[no_mangle]
 pub extern fn rust_deallocate(ptr: *mut u8, old_size: usize, align: usize) {}
 
-#[allow(unused_varibles)]
+#[allow(unused_variables)]
 #[no_mangle]
 pub extern fn rust_usable_size(size: usize, align: usize) -> usize {
     size
