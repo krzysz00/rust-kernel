@@ -1,4 +1,4 @@
-#![feature(no_std,lang_items,asm,core,alloc,collections)]
+#![feature(no_std,lang_items,asm,core,alloc)]
 #![no_std]
 
 #![crate_type="staticlib"]
@@ -7,11 +7,9 @@
 #[macro_use]
 extern crate core;
 extern crate alloc;
-extern crate collections;
 
 use core::prelude::*;
 use alloc::boxed::Box;
-use collections::Vec;
 
 extern crate rlibc;
 
@@ -55,16 +53,12 @@ pub fn k_main() {
                 :: "N"(0x50)
         }
     }
-    // loop { }
-    // let heap = Box::new('H');
-    // let heap2 = Box::new('!');
-    // vga::write_char(15,4,*heap);
-    // vga::write_char_with_color(15, 5, *heap2, LightGray, Pink);
+    let heap = Box::new('H');
+    let heap2 = Box::new('!');
+    vga::write_char(15,4,*heap);
+    vga::write_char_with_color(15, 5, *heap2, LightGray, Pink);
 
-    // let mut v: Vec<i32> = Vec::with_capacity((2 as usize).pow(12));
-    // for i in 0..(2 as i32).pow(10) {
-    //     v.push(i);
-    // }
+    unsafe { *(0xB0_00_00_01 as *mut u32) = 0xcafecafe; }
 }
 
 #[lang = "stack_exhausted"] extern fn stack_exhausted() {}
