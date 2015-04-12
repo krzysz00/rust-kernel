@@ -10,7 +10,7 @@ static mut initial_table_area: [u32; PAGE_TABLE_ENTRIES * 3] = [0; PAGE_TABLE_EN
 
 static mut next_frame: u32 = 0x100;
 
-fn page_table_for(vaddr: u32) -> *mut PageTable {
+fn page_table_for(vaddr: u32) -> &'static mut PageTable {
     let pd_index = vaddr >> 22;
 
     unsafe {
@@ -20,7 +20,7 @@ fn page_table_for(vaddr: u32) -> *mut PageTable {
             (*pd)[pd_index as usize] = (next_frame << 12) | 0b11;
             next_frame += 1;
         }
-        (0xFFC00_000 + 0x1_000 * pd_index) as *mut PageTable
+        &mut *((0xFFC00_000 + 0x1_000 * pd_index) as *mut PageTable)
     }
 }
 
@@ -28,7 +28,7 @@ pub fn make_present(addr: u32) {
     let page_number = (addr >> 12) & 0x3ff;
     unsafe {
         let pt = page_table_for(addr);
-        (*pt)[page_number as usize] = next_frame << 12 | 0b11;
+        pt[page_number as usize] = next_frame << 12 | 0b11;
         next_frame += 1;
     }
 }
