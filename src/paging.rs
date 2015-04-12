@@ -25,8 +25,7 @@ fn page_table_for(vaddr: u32) -> *mut PageTable {
 }
 
 pub fn make_present(addr: u32) {
-    let page_number = addr & 0x3ff;
-
+    let page_number = (addr >> 12) & 0x3ff;
     unsafe {
         let pt = page_table_for(addr);
         (*pt)[page_number as usize] = next_frame << 12 | 0b11;

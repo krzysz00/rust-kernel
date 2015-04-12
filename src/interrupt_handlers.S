@@ -25,7 +25,7 @@ _loop:      jmp _loop
 gpf_wrapper:
         pushal
         cli
-        mov -32(%esp), %eax
+        mov 32(%esp), %eax
         push %eax
         cld
         call gpf_handler
@@ -38,7 +38,7 @@ gpf_wrapper:
 page_fault_wrapper:
         pushal
         cld
-        mov -32(%esp), %eax
+        mov 32(%esp), %eax
         push %eax
         mov %cr2, %eax
         push %eax
