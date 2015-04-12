@@ -8,6 +8,9 @@
         .globl gpf_wrapper
         .extern gpf_handler
 
+        .globl page_fault_wrapper
+        .extern page_fault_handler
+
         .globl kbd_interrupt_wrapper
         .extern kbd_interrupt_handler
 
@@ -22,11 +25,25 @@ _loop:      jmp _loop
 gpf_wrapper:
         pushal
         cli
+        mov -32(%esp), %eax
+        push %eax
+        cld
+        call gpf_handler
+        add $4, %esp
+        popal
+        add $4, %esp
+        sti
+        iret
+
+page_fault_wrapper:
+        pushal
         cld
         mov -32(%esp), %eax
         push %eax
-        call gpf_handler
-        add $4, %esp
+        mov %cr2, %eax
+        push %eax
+        call page_fault_handler
+        add $8, %esp
         popal
         add $4, %esp
         sti

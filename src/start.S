@@ -26,6 +26,6 @@ set_up_stack:
 loop:
         jmp loop
 end:
-        .skip 4096
+        .skip 8192
 stack_here:
         .long 0xDEADBEEF

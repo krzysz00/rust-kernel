@@ -1,5 +1,5 @@
-const HEAP_START: usize = 0x00100000;
-const HEAP_END: usize = 0x00EFFFFF;
+const HEAP_START: usize = 0xC0_00_00_00;
+const HEAP_END: usize = 0xD0_00_00_00;
 
 use core;
 use rlibc;

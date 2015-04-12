@@ -1,4 +1,4 @@
-#![feature(no_std,lang_items,asm,core,alloc)]
+#![feature(no_std,lang_items,asm,core,alloc,collections)]
 #![no_std]
 
 #![crate_type="staticlib"]
@@ -7,9 +7,11 @@
 #[macro_use]
 extern crate core;
 extern crate alloc;
+extern crate collections;
 
 use core::prelude::*;
 use alloc::boxed::Box;
+use collections::Vec;
 
 extern crate rlibc;
 
@@ -18,13 +20,14 @@ mod vga;
 mod mmu;
 mod idt;
 mod interrupts;
+mod paging;
 mod malloc;
 
 use vga::Color::*;
 
 pub use idt::{idtDesc};
 pub use interrupts::{double_fault_handler, gpf_handler,
-                     kbd_interrupt_handler };
+                     page_fault_handler, kbd_interrupt_handler };
 pub use malloc::{rust_allocate, rust_reallocate, rust_reallocate_inplace,
                  rust_deallocate, rust_usable_size, rust_stats_print };
 
@@ -33,6 +36,8 @@ pub use malloc::{rust_allocate, rust_reallocate, rust_reallocate_inplace,
 pub fn k_main() {
     idt::init();
     interrupts::init();
+    paging::init();
+
     let greet = "Hello from bare-bones Rust";
 
     for i in 0..vga::ROWS {
@@ -50,11 +55,16 @@ pub fn k_main() {
                 :: "N"(0x50)
         }
     }
+    // loop { }
+    // let heap = Box::new('H');
+    // let heap2 = Box::new('!');
+    // vga::write_char(15,4,*heap);
+    // vga::write_char_with_color(15, 5, *heap2, LightGray, Pink);
 
-    let heap = Box::new('H');
-    let heap2 = Box::new('!');
-    vga::write_char(15,4,*heap);
-    vga::write_char_with_color(15, 5, *heap2, LightGray, Pink);
+    // let mut v: Vec<i32> = Vec::with_capacity((2 as usize).pow(12));
+    // for i in 0..(2 as i32).pow(10) {
+    //     v.push(i);
+    // }
 }
 
 #[lang = "stack_exhausted"] extern fn stack_exhausted() {}
