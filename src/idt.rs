@@ -5,9 +5,10 @@ use notex::Notex;
 const IDT_COUNT: usize = 256;
 
 #[no_mangle]
-pub static mut idtDesc: TableDescriptor =
-    TableDescriptor{ limit: 0 , base: 0};
+pub static idtDesc: Notex<TableDescriptor> =
+    notex!(TableDescriptor{ limit: 0 , base: 0});
 
+#[allow(non_upper_case_globals)]
 static IDT_NOTEX: Notex<[Descriptor; IDT_COUNT]> =
     notex!([ Descriptor { f0: 0, f1: 0 } ; IDT_COUNT]);
 
@@ -17,10 +18,11 @@ extern {
 
 pub fn init() {
     unsafe {
-        let idt= IDT_NOTEX.lock();
+        let idt = IDT_NOTEX.lock();
         let idt_addr = &(idt[0]) as *const Descriptor as usize;
-        idtDesc.limit = (size_of::<Descriptor>() * IDT_COUNT - 1) as u16;
-        idtDesc.base = idt_addr as u32;
+        let mut idt_desc = idtDesc.lock();
+        idt_desc.limit = (size_of::<Descriptor>() * IDT_COUNT - 1) as u16;
+        idt_desc.base = idt_addr as u32;
         lidt2();
     }
 }
