@@ -26,7 +26,7 @@ pub extern fn rust_reallocate(ptr: *mut u8, old_size: usize, size: usize, align:
     let new_ptr = rust_allocate(size, align);
     if !ptr.is_null() {
         unsafe {
-            rlibc::memcpy(ptr, new_ptr, old_size);
+            rlibc::memcpy(new_ptr, ptr, old_size);
         }
     }
     ptr

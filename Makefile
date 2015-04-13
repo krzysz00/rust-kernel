@@ -15,7 +15,7 @@ vpath % build
 RUSTSRC = deps/rust/
 
 RUSTC = rustc
-RUSTFLAGS_LIBS = --target=i686-unknown-elf.json --out-dir=${DEPDIR} -L${DEPDIR} --crate-type=rlib -Z no-landing-pads
+RUSTFLAGS_LIBS = --target=i686-unknown-elf.json --out-dir=${DEPDIR} -L${DEPDIR} --crate-type=rlib -C opt-level=3 -Z no-landing-pads
 RUSTFLAGS += --target=i686-unknown-elf.json --out-dir=${ODIR} -L${ODIR} -L${DEPDIR} -g -C opt-level=3 -Z no-landing-pads
 
 RUSTFILES = $(notdir $(wildcard ${SRCDIR}/*.rs))
