@@ -63,10 +63,10 @@ start:
 	lgdt gdtDesc
 
 	# load the idt
-	lidt idtDescTmp
+	lidt idtDesc # idtDesc is all zeroes here
 
 	# enable protected mode, still running in 16 bit segment with
-        # original segments
+	# original segments
 	mov %cr0,%eax
 	or $1,%eax
 	mov %eax,%cr0
@@ -81,10 +81,6 @@ start:
 
 	# do a far jump to the kernel entry point in 32 bit mode
 	ljmp $8,$kStart
-
-idtDescTmp:
-	.word 0
-	.long 0
 
 end:
 	.skip 510 - (end - start)
