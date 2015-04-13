@@ -13,11 +13,12 @@ use alloc::boxed::Box;
 
 extern crate rlibc;
 
+#[macro_use]
+mod notex;
+
 mod machine;
 mod vga;
 mod mmu;
-#[macro_use]
-mod notex;
 mod idt;
 mod interrupts;
 mod paging;
