@@ -1,5 +1,5 @@
 target
 Cargo.lock
 build
-deps/libcore/
+deps/*.rlib
 deps/rust
