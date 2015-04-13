@@ -5,10 +5,10 @@ use notex::Notex;
 const IDT_COUNT: usize = 256;
 
 #[no_mangle]
+#[allow(non_upper_case_globals)]
 pub static idtDesc: Notex<TableDescriptor> =
     notex!(TableDescriptor{ limit: 0 , base: 0});
 
-#[allow(non_upper_case_globals)]
 static IDT_NOTEX: Notex<[Descriptor; IDT_COUNT]> =
     notex!([ Descriptor { f0: 0, f1: 0 } ; IDT_COUNT]);
 
