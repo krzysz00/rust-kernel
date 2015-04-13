@@ -1,10 +1,10 @@
 #[derive(Copy, Clone)]
-#[repr(packed)]
+#[repr(C,packed)]
 pub struct Descriptor {
     pub f0: u32, pub f1: u32,
 }
 
-#[repr(packed)]
+#[repr(C,packed)]
 pub struct TableDescriptor {
     pub limit: u16, pub base: u32
 }

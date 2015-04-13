@@ -19,6 +19,7 @@ mod notex;
 mod machine;
 mod vga;
 mod mmu;
+mod gdt;
 mod idt;
 mod interrupts;
 mod paging;
@@ -62,6 +63,7 @@ pub fn k_main() {
     vga::write_char_with_color(15, 5, *heap2, LightGray, Pink);
 
     unsafe { *(0xB0_00_00_01 as *mut u32) = 0xcafecafe; }
+    unsafe { *(0xA0_00_10_00 as *mut mmu::Descriptor) = gdt::gdt_get(1); }
 }
 
 #[lang = "stack_exhausted"] extern fn stack_exhausted() {}

@@ -63,7 +63,7 @@ start:
 	lgdt gdtDesc
 
 	# load the idt
-	lidt idtDesc # idtDesc is all zeroes here
+	lidt tmpIdtDesc # needed if idtDesc moves past 0xffff
 
 	# enable protected mode, still running in 16 bit segment with
 	# original segments
