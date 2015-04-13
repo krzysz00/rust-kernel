@@ -26,11 +26,11 @@ fn page_table_for(vaddr: u32, next_frame: &mut u32) -> &'static mut PageTable {
 
 #[allow(unused_assignments)]
 pub fn make_present(addr: u32) {
-    let mut next_frame = *NEXT_FRAME_NOTEX.lock();
+    let mut next_frame = NEXT_FRAME_NOTEX.lock();
     let page_number = (addr >> 12) & 0x3ff;
-    let pt = page_table_for(addr, &mut next_frame);
-    pt[page_number as usize] = next_frame << 12 | 0b11;
-    next_frame += 1;
+    let pt = page_table_for(addr, &mut *next_frame);
+    pt[page_number as usize] = *next_frame << 12 | 0b11;
+    *next_frame += 1;
 }
 
 pub fn init() {
