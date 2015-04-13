@@ -16,6 +16,8 @@ extern crate rlibc;
 mod machine;
 mod vga;
 mod mmu;
+#[macro_use]
+mod notex;
 mod idt;
 mod interrupts;
 mod paging;
