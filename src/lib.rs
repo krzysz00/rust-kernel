@@ -1,4 +1,4 @@
-#![feature(no_std,lang_items,asm,core,alloc)]
+#![feature(no_std,lang_items,asm,core,alloc,collections)]
 #![no_std]
 
 #![crate_type="staticlib"]
@@ -7,9 +7,11 @@
 #[macro_use]
 extern crate core;
 extern crate alloc;
+extern crate collections;
 
 use core::prelude::*;
 use alloc::boxed::Box;
+use collections::string::String;
 
 extern crate rlibc;
 
@@ -62,6 +64,10 @@ pub fn k_main() {
     vga::write_char(15,4,*heap);
     vga::write_char_with_color(15, 5, *heap2, LightGray, Pink);
 
+    let mut string = String::new();
+    string.push_str("Hello, ");
+    string.push_str("paging");
+    vga::write_string(3,5,&string);
     unsafe { *(0xB0_00_00_01 as *mut u32) = 0xcafecafe; }
     unsafe { *(0xA0_00_10_00 as *mut mmu::Descriptor) = gdt::gdt_get(1); }
 }

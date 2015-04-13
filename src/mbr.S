@@ -82,6 +82,10 @@ start:
 	# do a far jump to the kernel entry point in 32 bit mode
 	ljmp $8,$kStart
 
+idtDescTmp:
+	.word 0
+	.long 0
+
 end:
 	.skip 510 - (end - start)
 	.byte 0x55
