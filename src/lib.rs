@@ -64,8 +64,7 @@ pub fn k_main() {
     vga::write_char(15,4,*heap);
     vga::write_char_with_color(15, 5, *heap2, LightGray, Pink);
 
-    let mut string = String::new();
-    string.push_str("Hello, ");
+    let mut string = String::from_str("Hello, ");
     string.push_str("paging");
     vga::write_string(3,5,&string);
     unsafe { *(0xB0_00_00_01 as *mut u32) = 0xcafecafe; }
