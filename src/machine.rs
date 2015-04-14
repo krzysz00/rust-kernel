@@ -18,7 +18,7 @@ pub fn inb(port: u16) -> u8 {
 
 pub fn inl(port: u16) -> u32 {
     unsafe {
-        _inb(port as u32) as u32
+        _inl(port as u32)
     }
 }
 
