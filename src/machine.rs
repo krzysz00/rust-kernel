@@ -6,7 +6,6 @@ extern {
     fn _outb(port: u32, val: u32);
     fn _ltr(tr: u32);
 
-    fn _sti();
     fn _enable_paging(page_directory: *const u32);
 }
 
@@ -32,9 +31,6 @@ pub fn ltr(value: u32) {
     unsafe { _ltr(value) }
 }
 
-pub fn sti() {
-    unsafe { _sti() }
-}
 pub fn enable_paging(page_directory: *const u32) {
     unsafe {
         _enable_paging(page_directory);

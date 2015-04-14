@@ -1,7 +1,7 @@
 #[no_mangle]
 
 use idt;
-use machine::{outb, inb, sti};
+use machine::{outb, inb};
 use paging;
 use vga;
 
@@ -76,8 +76,9 @@ pub fn mask_pic(master_mask: u8, slave_mask: u8) {
 
 // Remaps the PIC, masks everything
 pub fn init() {
-    remap_pic();
+    idt::init();
 
+    remap_pic();
     mask_pic(0xff, 0xff);
 
     idt::register_interrupt(0x8, double_fault_wrapper);
@@ -85,5 +86,5 @@ pub fn init() {
     idt::register_interrupt(0xE, page_fault_wrapper);
     idt::register_interrupt(0x50, kbd_interrupt_wrapper);
 
-    sti();
+    unsafe { asm!("sti" :::: "volatile") }
 }

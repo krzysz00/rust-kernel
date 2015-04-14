@@ -37,11 +37,6 @@ _ltr:
 	ltr %ax
 	ret
 
-        .globl _sti
-_sti:
-        sti
-        ret
-
         .globl _enable_paging
 _enable_paging:
         mov 4(%esp), %eax

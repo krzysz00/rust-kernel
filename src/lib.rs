@@ -38,7 +38,6 @@ pub use malloc::{rust_allocate, rust_reallocate, rust_reallocate_inplace,
 #[lang="start"]
 #[no_mangle]
 pub fn k_main() {
-    idt::init();
     interrupts::init();
     paging::init();
 
