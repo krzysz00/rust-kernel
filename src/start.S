@@ -26,6 +26,8 @@ set_up_stack:
 loop:
         jmp loop
 end:
+        .section .bss
+stack_start:    
         .skip 8192
 stack_here:
         .long 0xDEADBEEF
