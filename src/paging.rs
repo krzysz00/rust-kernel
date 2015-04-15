@@ -17,8 +17,10 @@ const LEVEL1_OFFSET: u64 = 0x1000;
 
 const PRESENT_RW: u64 = 0b11;
 
+const NINE_BITS: u64 = 0x1ff;
+
 fn ensure_pdp(vaddr: u64, next_frame: &mut u64) -> &'static mut PageTable {
-    let pml4_index = (vaddr >> 39) & 0x1ff;
+    let pml4_index = (vaddr >> 39) & NINE_BITS;
     unsafe {
         let pml4 = PML_MAP_BASE as *mut PageTable;
         if (*pml4)[pml4_index as usize] & 1 == 0 {
@@ -30,8 +32,8 @@ fn ensure_pdp(vaddr: u64, next_frame: &mut u64) -> &'static mut PageTable {
 }
 
 fn ensure_pd(vaddr: u64, next_frame: &mut u64) -> &'static mut PageTable {
-    let pml4_index = (vaddr >> 39) & 0x1ff;
-    let pdp_index = (vaddr >> 30) & 0x1ff;
+    let pml4_index = (vaddr >> 39) & NINE_BITS;
+    let pdp_index = (vaddr >> 30) & NINE_BITS;
     unsafe {
         let pdp = ensure_pdp(vaddr, next_frame);
         if pdp[pdp_index as usize] & 1 == 0 {
@@ -44,9 +46,9 @@ fn ensure_pd(vaddr: u64, next_frame: &mut u64) -> &'static mut PageTable {
 }
 
 fn ensure_pt(vaddr: u64, next_frame: &mut u64) -> &'static mut PageTable {
-    let pml4_index = (vaddr >> 39) & 0x1ff;
-    let pdp_index = (vaddr >> 30) & 0x1ff;
-    let pd_index = (vaddr >> 21) & 0x1ff;
+    let pml4_index = (vaddr >> 39) & NINE_BITS;
+    let pdp_index = (vaddr >> 30) & NINE_BITS;
+    let pd_index = (vaddr >> 21) & NINE_BITS;
     unsafe {
         let pd = ensure_pd(vaddr, next_frame);
         if pd[pd_index as usize] & 1 == 0 {
@@ -62,7 +64,7 @@ fn ensure_pt(vaddr: u64, next_frame: &mut u64) -> &'static mut PageTable {
 #[allow(unused_assignments)]
 pub fn make_present(vaddr: u64) {
     let mut next_frame = NEXT_FRAME_NOTEX.lock();
-    let pt_index = (vaddr >> 12) & 0x1ff;
+    let pt_index = (vaddr >> 12) & NINE_BITS;
     let pt = ensure_pt(vaddr, &mut next_frame);
     pt[pt_index as usize] = *next_frame << 12 | 0b11;
     *next_frame += 1;
