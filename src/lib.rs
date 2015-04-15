@@ -61,7 +61,8 @@ pub fn k_main() {
     string.push_str("paging");
     vga::write_string(3,5,&string);
     unsafe {
-        *(0x1234_5678_9ABC as *mut u64) = 0xDEAD_CAFE_CAFE_F00F;
+        *(0x0000_b000_0000 as *mut u64) = 0xDEAD_CAFE_CAFE_F00F;
+//        *(0x1234_5678_9ABC as *mut u64) = 0xDEAD_CAFE_CAFE_F00F;
     }
 }
 
