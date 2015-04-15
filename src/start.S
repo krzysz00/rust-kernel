@@ -30,4 +30,4 @@ end:
 stack_start:    
         .skip 8192
 stack_here:
-        .long 0xDEADBEEF
+        .skip 4
