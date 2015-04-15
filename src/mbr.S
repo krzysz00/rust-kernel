@@ -60,7 +60,7 @@ start:
 	int $0x13		# read the sectors
 
 	# load the gdt
-	lgdt gdtDesc
+	lgdt gdtDesc32
 
 	# load the idt
 	lidt tmpIdtDesc # needed if idtDesc moves past 0xffff
@@ -76,6 +76,9 @@ start:
 	# we get into 32 bit mode
 	mov $16,%ax
 	mov %ax,%ds
+	mov %ax,%es
+	mov %ax,%fs
+	mov %ax,%gs
 	mov %ax,%ss
 
 

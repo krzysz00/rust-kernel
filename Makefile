@@ -15,8 +15,8 @@ vpath % build
 RUSTSRC = deps/rust/
 
 RUSTC = rustc
-RUSTFLAGS_LIBS = --target=i686-unknown-elf.json --out-dir=${DEPDIR} -L${DEPDIR} --crate-type=rlib -C opt-level=3 -Z no-landing-pads
-RUSTFLAGS += --target=i686-unknown-elf.json --out-dir=${ODIR} -L${ODIR} -L${DEPDIR} -g -C opt-level=3 -Z no-landing-pads
+RUSTFLAGS_LIBS = --target=x86_64-unknown-elf.json --out-dir=${DEPDIR} -L${DEPDIR} --crate-type=rlib -C opt-level=3 -Z no-landing-pads
+RUSTFLAGS += --target=x86_64-unknown-elf.json --out-dir=${ODIR} -L${ODIR} -L${DEPDIR} -g -C opt-level=3 -Z no-landing-pads
 
 RUSTFILES = $(notdir $(wildcard ${SRCDIR}/*.rs))
 SFILES = $(notdir $(wildcard ${SRCDIR}/*.S) $(wildcard ${SRCDIR}/*.s))
@@ -30,7 +30,7 @@ OBJCOPY = objcopy
 DD = dd
 
 CC = gcc
-ASFLAGS += -m32
+ASFLAGS += -m64
 
 all: kernel.img
 
@@ -40,7 +40,7 @@ clean:
 ${ODIR}/.timestamp:
 	mkdir -p ${ODIR} && touch $@
 
-libcore.rlib: i686-unknown-elf.json
+libcore.rlib: x86_64-unknown-elf.json
 	${RUSTC} ${RUSTFLAGS_LIBS} ${RUSTSRC}/src/libcore/lib.rs
 
 liballoc.rlib: libcore.rlib
@@ -68,7 +68,7 @@ librustcode.a: ${RUSTFILES} librlibc.rlib liballoc.rlib
 	${RUSTC} ${RUSTFLAGS} ${SRCDIR}/lib.rs
 
 kernel: ${AFILES}
-	${LD} --gc-sections -N -m elf_i386 -e start -Ttext=0x7c00 -o ${ODIR}/kernel ${ODIR}/mbr.o --start-group $(addprefix ${ODIR}/,${AFILES}) --end-group
+	${LD} --gc-sections -N -m elf_x86_64 -z max-page-size=0x1000 -e start -Ttext=0x7c00 -o ${ODIR}/kernel ${ODIR}/mbr.o --start-group $(addprefix ${ODIR}/,${AFILES}) --end-group
 
 %.bin: %
 	${OBJCOPY} -O binary ${ODIR}/$< ${ODIR}/$@
