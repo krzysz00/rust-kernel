@@ -39,8 +39,7 @@ pub use malloc::{rust_allocate, rust_reallocate, rust_reallocate_inplace,
 #[no_mangle]
 pub fn k_main() {
     interrupts::init();
-    paging::init();
-
+    // YOU MAY NOW PAGE FAULT
     let greet = "Hello from bare-bones Rust";
 
     for i in 0..vga::ROWS {

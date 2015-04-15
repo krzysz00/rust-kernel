@@ -27,7 +27,7 @@ pub extern fn double_fault_handler() {
 }
 
 #[no_mangle]
-pub extern fn gpf_handler(code: u32) {
+pub extern fn gpf_handler(code: u64) {
     const ERROR: &'static str = "General protection fault: ";
     vga::write_string(15, 0, ERROR);
     let repr = ((code >> 3) + 0x21) as u8;
@@ -35,7 +35,7 @@ pub extern fn gpf_handler(code: u32) {
 }
 
 #[no_mangle]
-pub extern fn page_fault_handler(address: u32, error: u32) {
+pub extern fn page_fault_handler(address: u64, error: u64) {
     if (error & 0x1) == 1 { // It's not a missing page?
         vga::write_string(0, 0, "Weird page fault");
         loop {};

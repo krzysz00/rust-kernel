@@ -1,12 +1,12 @@
 #[derive(Copy, Clone)]
 #[repr(C,packed)]
 pub struct Descriptor {
-    pub f0: u32, pub f1: u32,
+    pub f0: u32, pub f1: u32, pub f2: u32, pub f3: u32,
 }
 
 #[repr(C,packed)]
 pub struct TableDescriptor {
-    pub limit: u16, pub base: u32
+    pub limit: u16, pub base: u64
 }
 
 #[inline]
@@ -58,18 +58,19 @@ impl Descriptor {
         mms(&mut self.f0, v, 31, 16)
     }
 
-    pub fn set_offset(&mut self, v: u32) {
-        mms(&mut self.f0, v, 15, 0);
-        mms(&mut self.f1, v >> 16, 19, 16)
+    pub fn set_offset(&mut self, v: u64) {
+        mms(&mut self.f0, v as u32, 15, 0);
+        mms(&mut self.f1, (v >> 16) as u32, 31, 16);
+        mms(&mut self.f2, (v >> 32) as u32, 31, 0);
     }
 
-    pub fn set_trap_descriptor(&mut self, selector: u32, offset: u32, dpl: u32) {
+    pub fn set_interrupt_descriptor(&mut self, selector: u32, offset: u64, dpl: u32) {
         self.clear();
         self.set_selector(selector);
         self.set_offset(offset);
         self.set_p(1);
         self.set_dpl(dpl);
         self.set_s(0);
-        self.set_type(0xF);
+        self.set_type(0xE);
     }
 }

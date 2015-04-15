@@ -1,31 +1,25 @@
 	# outb(int port, int val)
 	.global _outb
 _outb:
-	push %edx
-	mov 8(%esp),%dx
-	mov 12(%esp),%al
-	outb %al,%dx
-	pop %edx
-	ret
+	mov %rdi, %rdx
+	mov %rsi, %rax
+	outb %al, %dx
+	retq
 
 	# int inb(int port)
 	.global _inb
 _inb:
-	push %edx
-	mov 8(%esp),%dx
-	inb %dx,%al
-	pop %edx
-	and $0xff,%eax
-	ret
+	mov %rdi, %rdx
+	inb %dx, %al
+	and $0xff, %rax
+	retq
 
 	# unsigned long inb(int port)
 	.global _inl
 _inl:
-	push %edx
-	mov 8(%esp),%dx
-	inl %dx,%eax
-	pop %edx
-	ret
+	mov %rdi, %rdx
+	inl %dx, %eax
+	retq
 
 
 	#
@@ -33,20 +27,7 @@ _inl:
 	#
 	.global _ltr
 _ltr:
-	mov 4(%esp),%eax
+	mov %rdi, %rax
 	ltr %ax
-	ret
-
-        .globl _enable_paging
-_enable_paging:
-        mov 4(%esp), %eax
-        mov %eax, %cr3
-        mov %cr0, %eax
-        or $0x80000000, %eax
-        mov %eax, %cr0
-
-        mov %cr4, %eax
-        or $0x10, %eax
-        mov %eax, %cr4
-        ret
+	retq
 
