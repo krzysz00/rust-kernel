@@ -57,16 +57,17 @@ pub fn k_main() {
                 :: "N"(0x50)
         }
     }
-    // let heap = Box::new('H');
-    // let heap2 = Box::new('!');
-    // vga::write_char(15,4,*heap);
-    // vga::write_char_with_color(15, 5, *heap2, LightGray, Pink);
+    let heap = Box::new('H');
+    let heap2 = Box::new('!');
+    vga::write_char(15,4,*heap);
+    vga::write_char_with_color(15, 5, *heap2, LightGray, Pink);
 
-    // let mut string = String::from_str("Hello, ");
-    // string.push_str("paging");
-    // vga::write_string(3,5,&string);
-    // unsafe { *(0xB0_00_00_01 as *mut u32) = 0xcafecafe; }
-    // unsafe { *(0xA0_00_10_00 as *mut mmu::Descriptor) = gdt::gdt_get(1); }
+    let mut string = String::from_str("Hello, ");
+    string.push_str("paging");
+    vga::write_string(3,5,&string);
+    unsafe {
+        *(0x1234_5678_9ABC as *mut u64) = 0xDEAD_CAFE_CAFE_F00F;
+    }
 }
 
 #[lang = "stack_exhausted"] extern fn stack_exhausted() {}
