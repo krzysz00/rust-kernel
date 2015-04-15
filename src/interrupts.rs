@@ -45,7 +45,9 @@ pub extern fn page_fault_handler(address: u32, error: u32) {
 
 #[no_mangle]
 pub extern fn kbd_interrupt_handler() {
+    let byte = inb(0x60);
     vga::write_string_with_color(4, 30, "Interrupts on!", Pink, Black);
+    outb(PIC1_CMD, 0x20);
 }
 
 fn remap_pic() {
@@ -79,12 +81,12 @@ pub fn init() {
     idt::init();
 
     remap_pic();
-    mask_pic(0xff, 0xff);
+    mask_pic(0xfd, 0xff);
 
     idt::register_interrupt(0x8, double_fault_wrapper);
     idt::register_interrupt(0xD, gpf_wrapper);
     idt::register_interrupt(0xE, page_fault_wrapper);
-    idt::register_interrupt(0x50, kbd_interrupt_wrapper);
+    idt::register_interrupt(0x21, kbd_interrupt_wrapper);
 
     unsafe { asm!("sti" :::: "volatile") }
 }

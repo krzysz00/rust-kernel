@@ -52,12 +52,7 @@ pub fn k_main() {
     vga::write_string(10, 5, greet);
     vga::move_cursor(10, 5 + greet.len());
     vga::write_string_with_color(11, 10, "Test", Black, LightRed);
-    unsafe {
-        asm! {
-            "int $0\n"
-                :: "N"(0x50)
-        }
-    }
+
     let heap = Box::new('H');
     let heap2 = Box::new('!');
     vga::write_char(15,4,*heap);
