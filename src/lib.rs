@@ -60,8 +60,9 @@ pub fn k_main() {
     let mut string = String::from_str("Hello, ");
     string.push_str("paging");
     vga::write_string(3,5,&string);
-    unsafe { *(0xB0_00_00_01 as *mut u32) = 0xcafecafe; }
-    unsafe { *(0xA0_00_10_00 as *mut mmu::Descriptor) = gdt::gdt_get(1); }
+    unsafe {
+        *(0x1234_5678_9ABC as *mut u64) = 0xDEAD_CAFE_CAFE_F00F;
+    }
 }
 
 #[lang = "stack_exhausted"] extern fn stack_exhausted() {}

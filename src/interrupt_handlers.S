@@ -63,7 +63,7 @@ _loop:      jmp _loop
 gpf_wrapper:
         pushregs
         cli
-        mov 120(%rsp), %rdi
+        mov 128(%rsp), %rdi
         cld
         call gpf_handler
         popregs
@@ -74,7 +74,7 @@ gpf_wrapper:
 page_fault_wrapper:
         pushregs
         cld
-        mov 120(%rsp), %rsi
+        mov 128(%rsp), %rsi
         mov %cr2, %rdi
         call page_fault_handler
         popregs
