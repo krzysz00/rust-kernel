@@ -1,6 +1,6 @@
-#[no_mangle]
+mod idt;
+pub use self::idt::{idtDesc};
 
-use idt;
 use machine::{outb, inb};
 use paging;
 use vga;

@@ -22,14 +22,13 @@ mod machine;
 mod vga;
 mod mmu;
 mod gdt;
-mod idt;
 mod interrupts;
 mod paging;
 mod malloc;
 
 use vga::Color::*;
 
-pub use idt::{idtDesc};
+pub use interrupts::{idtDesc};
 pub use interrupts::{double_fault_handler, gpf_handler,
                      page_fault_handler, kbd_interrupt_handler };
 pub use malloc::{rust_allocate, rust_reallocate, rust_reallocate_inplace,
@@ -38,8 +37,9 @@ pub use malloc::{rust_allocate, rust_reallocate, rust_reallocate_inplace,
 #[lang="start"]
 #[no_mangle]
 pub fn k_main() {
-    interrupts::init();
     paging::init();
+    interrupts::init();
+    // YOU MAY NOW PAGE FAULT
 
     let greet = "Hello from bare-bones Rust";
 
