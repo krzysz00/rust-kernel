@@ -14,6 +14,7 @@
         .globl kbd_interrupt_wrapper
         .extern kbd_interrupt_handler
 
+        .globl spurious_interrupt_handler
 double_fault_wrapper:
         pushal
         cli
@@ -56,4 +57,7 @@ kbd_interrupt_wrapper:
         call kbd_interrupt_handler
         popal
         sti
+        iret
+
+spurious_interrupt_handler:
         iret

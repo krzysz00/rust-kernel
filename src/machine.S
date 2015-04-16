@@ -50,3 +50,18 @@ _enable_paging:
         mov %eax, %cr4
         ret
 
+        .globl _rdmsr
+        # uint64_t _rdmsr(uint32_t id)
+_rdmsr:
+        mov 4(%esp), %ecx
+        rdmsr
+        ret
+
+        .globl _wrmsr
+        # _wrmsr (uint32_t id, uint64_t value)
+_wrmsr:
+        mov 4(%esp), %ecx
+        mov 8(%esp), %eax
+        mov 12(%esp), %edx
+        wrmsr
+        ret

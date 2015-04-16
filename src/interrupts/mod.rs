@@ -1,8 +1,11 @@
 mod idt;
 mod pic;
-pub use self::idt::{idtDesc};
+mod apic;
 
-use machine::{outb, inb};
+pub use self::idt::{idtDesc};
+pub use self::apic::{send_interrupt};
+
+use machine::{inb};
 use paging;
 use vga;
 
@@ -15,6 +18,7 @@ extern {
     fn gpf_wrapper();
     fn page_fault_wrapper();
     fn kbd_interrupt_wrapper();
+    fn spurious_interrupt_handler();
 }
 
 #[no_mangle]
@@ -43,7 +47,7 @@ pub extern fn page_fault_handler(address: u32, error: u32) {
 pub extern fn kbd_interrupt_handler() {
     let byte = inb(0x60);
     vga::write_string_with_color(4, 30, "Interrupts on!", Pink, Black);
-    outb(0x20, 0x20);
+    apic::eoi();
 }
 
 // Remaps the PIC, masks everything
@@ -51,12 +55,14 @@ pub fn init() {
     idt::init();
 
     pic::remap_pic();
-    pic::mask_pic(0xfd, 0xff);
+    pic::mask_pic(0xff, 0xff);
 
     idt::register_interrupt(0x8, double_fault_wrapper);
     idt::register_interrupt(0xD, gpf_wrapper);
     idt::register_interrupt(0xE, page_fault_wrapper);
     idt::register_interrupt(0x21, kbd_interrupt_wrapper);
+    idt::register_interrupt(0xFF, spurious_interrupt_handler);
 
+    apic::init();
     unsafe { asm!("sti" :::: "volatile") }
 }

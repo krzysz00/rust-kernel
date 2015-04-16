@@ -63,6 +63,7 @@ pub fn k_main() {
     vga::write_string(3,5,&string);
     unsafe { *(0xB0_00_00_01 as *mut u32) = 0xcafecafe; }
     unsafe { *(0xA0_00_10_00 as *mut mmu::Descriptor) = gdt::gdt_get(1); }
+    interrupts::send_interrupt(0, 0x21);
 }
 
 #[lang = "stack_exhausted"] extern fn stack_exhausted() {}
