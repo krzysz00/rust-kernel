@@ -1,6 +1,8 @@
 use machine::{rdmsr, wrmsr};
 use paging::{identity_map};
 
+use core::intrinsics::{volatile_load, volatile_store};
+
 const LAPIC_MSR_ID: u32 = 0x1B;
 const LAPIC_ENABLE_BIT: u64 = 1 << 11;
 const LAPIC_BSP_BIT: u64 = 1 << 8;
@@ -40,8 +42,8 @@ fn read_ioapic_reg(reg: u8) -> u32 {
     let ioapic = IOAPIC_BASE as *mut u32;
     let reg = reg as u32;
     unsafe {
-        *ioapic = reg;
-        *ioapic.offset(4)
+        volatile_store(ioapic, reg);
+        volatile_load(ioapic.offset(4))
     }
 }
 
@@ -49,8 +51,8 @@ fn write_ioapic_reg(reg: u8, value: u32) {
     let ioapic = IOAPIC_BASE as *mut u32;
     let reg = reg as u32;
     unsafe {
-        *ioapic = reg;
-        *ioapic.offset(4) = value;
+        volatile_store(ioapic, reg);
+        volatile_store(ioapic.offset(4), value);
     }
 }
 
@@ -59,10 +61,7 @@ pub fn direct_irq(irq: u8, vector: u8, dest: u32) {
     let f1 = dest << 24;
     let irq_reg = 0x10 + (2 * irq);
     write_ioapic_reg(irq_reg, f0);
-    ::core::atomic::fence(::core::atomic::Ordering::Acquire);
-//    if read_ioapic_reg(irq_reg) != 0 {
     write_ioapic_reg(irq_reg + 1, f1);
-//    }
 }
 
 pub fn mask_irq(irq: u8) {
