@@ -37,18 +37,20 @@ pub fn eoi() {
 }
 
 fn read_ioapic_reg(reg: u8) -> u32 {
-    let ioapic = IOAPIC_BASE as *mut [u32; 5];
+    let ioapic = IOAPIC_BASE as *mut u32;
+    let reg = reg as u32;
     unsafe {
-        (*ioapic)[0] = reg as u32;
-        (*ioapic)[4]
+        *ioapic = reg;
+        *ioapic.offset(4)
     }
 }
 
 fn write_ioapic_reg(reg: u8, value: u32) {
-    let ioapic = IOAPIC_BASE as *mut [u32; 5];
+    let ioapic = IOAPIC_BASE as *mut u32;
+    let reg = reg as u32;
     unsafe {
-        (*ioapic)[0] = reg as u32;
-        (*ioapic)[4] = value;
+        *ioapic = reg;
+        *ioapic.offset(4) = value;
     }
 }
 
@@ -57,7 +59,10 @@ pub fn direct_irq(irq: u8, vector: u8, dest: u32) {
     let f1 = dest << 24;
     let irq_reg = 0x10 + (2 * irq);
     write_ioapic_reg(irq_reg, f0);
+    ::core::atomic::fence(::core::atomic::Ordering::Acquire);
+//    if read_ioapic_reg(irq_reg) != 0 {
     write_ioapic_reg(irq_reg + 1, f1);
+//    }
 }
 
 pub fn mask_irq(irq: u8) {

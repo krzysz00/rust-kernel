@@ -22,6 +22,7 @@ mod machine;
 mod vga;
 mod mmu;
 mod gdt;
+mod acpi;
 mod interrupts;
 mod paging;
 mod malloc;
@@ -38,8 +39,9 @@ pub use malloc::{rust_allocate, rust_reallocate, rust_reallocate_inplace,
 #[no_mangle]
 pub fn k_main() {
     paging::init();
-    interrupts::init();
+    interrupts::init_idt();
     // YOU MAY NOW PAGE FAULT
+    interrupts::init();
 
     let greet = "Hello from bare-bones Rust";
 
@@ -63,7 +65,6 @@ pub fn k_main() {
     vga::write_string(3,5,&string);
     unsafe { *(0xB0_00_00_01 as *mut u32) = 0xcafecafe; }
     unsafe { *(0xA0_00_10_00 as *mut mmu::Descriptor) = gdt::gdt_get(1); }
-    interrupts::send_interrupt(0, 0x21);
 }
 
 #[lang = "stack_exhausted"] extern fn stack_exhausted() {}

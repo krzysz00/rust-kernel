@@ -1,9 +1,8 @@
 mod idt;
 mod pic;
-mod apic;
+pub mod apic;
 
 pub use self::idt::{idtDesc};
-pub use self::apic::{send_interrupt};
 
 use machine::{inb};
 use paging;
@@ -51,7 +50,7 @@ pub extern fn kbd_interrupt_handler() {
 }
 
 // Remaps the PIC, masks everything
-pub fn init() {
+pub fn init_idt() {
     idt::init();
 
     pic::remap_pic();
@@ -62,7 +61,9 @@ pub fn init() {
     idt::register_interrupt(0xE, page_fault_wrapper);
     idt::register_interrupt(0x21, kbd_interrupt_wrapper);
     idt::register_interrupt(0xFF, spurious_interrupt_handler);
+}
 
+pub fn init() {
     apic::init();
     unsafe { asm!("sti" :::: "volatile") }
 }
