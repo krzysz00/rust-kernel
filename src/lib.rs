@@ -1,4 +1,4 @@
-#![feature(no_std,lang_items,asm,core,alloc,collections)]
+#![feature(no_std,lang_items,asm,core,alloc,collections,step_by)]
 #![no_std]
 
 #![crate_type="staticlib"]
