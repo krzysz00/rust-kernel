@@ -57,8 +57,8 @@ pub fn init_idt() {
     pic::mask_pic(0xff, 0xff);
 
     idt::register_interrupt(0x8, double_fault_wrapper);
-    idt::register_interrupt(0xD, gpf_wrapper);
-    idt::register_interrupt(0xE, page_fault_wrapper);
+    idt::register_trap(0xD, gpf_wrapper);
+    idt::register_trap(0xE, page_fault_wrapper);
     idt::register_interrupt(0x21, kbd_interrupt_wrapper);
     idt::register_interrupt(0xFF, spurious_interrupt_handler);
 }

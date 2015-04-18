@@ -63,13 +63,13 @@ impl Descriptor {
         mms(&mut self.f1, v >> 16, 19, 16)
     }
 
-    pub fn set_trap_descriptor(&mut self, selector: u32, offset: u32, dpl: u32) {
+    pub fn set_descriptor(&mut self, selector: u32, offset: u32, dpl: u32, typ: u32) {
         self.clear();
         self.set_selector(selector);
         self.set_offset(offset);
         self.set_p(1);
         self.set_dpl(dpl);
         self.set_s(0);
-        self.set_type(0xF);
+        self.set_type(typ);
     }
 }

@@ -25,7 +25,6 @@ _loop:      jmp _loop
 
 gpf_wrapper:
         pushal
-        cli
         mov 32(%esp), %eax
         push %eax
         cld
@@ -33,7 +32,6 @@ gpf_wrapper:
         add $4, %esp
         popal
         add $4, %esp
-        sti
         iret
 
 page_fault_wrapper:
@@ -47,16 +45,13 @@ page_fault_wrapper:
         add $8, %esp
         popal
         add $4, %esp
-        sti
         iret
 
 kbd_interrupt_wrapper:
         pushal
-        cli
         cld
         call kbd_interrupt_handler
         popal
-        sti
         iret
 
 spurious_interrupt_handler:
