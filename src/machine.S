@@ -65,3 +65,9 @@ _wrmsr:
         mov 12(%esp), %edx
         wrmsr
         ret
+
+_invlpg:
+        mov 4(%esp), %eax
+        invlpg (%eax)
+        ret
+

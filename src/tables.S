@@ -12,10 +12,11 @@ gdt:
         .endr
 gdtEnd:
 gdtDesc:
-        .word (gdtEnd - gdt)
+        .word (gdtEnd - gdt - 1)
         .long gdt
 tmpIdtDesc:
         .word 0
         .long 0
 lidt2:
         lidt idtDesc
+        ret

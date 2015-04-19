@@ -9,6 +9,8 @@ extern {
     fn _rdmsr(id: u32) -> u64;
     fn _wrmsr(id: u32, value: u64);
     fn _enable_paging(page_directory: *const u32);
+
+    fn _invlpg(addr: u32);
 }
 
 pub fn inb(port: u16) -> u8 {
@@ -44,5 +46,11 @@ pub fn wrmsr(id: u32, value: u64) {
 pub fn enable_paging(page_directory: *const u32) {
     unsafe {
         _enable_paging(page_directory);
+    }
+}
+
+pub fn invlpg(vaddr: u32) {
+    unsafe {
+        _invlpg(vaddr);
     }
 }

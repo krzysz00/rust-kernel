@@ -33,6 +33,14 @@ pub fn identity_map(addr: usize) {
     pt[page_index] = (frame_num as u32) << 12 | PRESENT_RW;
 }
 
+pub fn forget(addr: usize) {
+    let mut next_frame = NEXT_FRAME_NOTEX.lock();
+    let page_index = (addr >> 12) & 0x3ff;
+    let pt = page_table_for(addr as u32, &mut *next_frame);
+    pt[page_index] &= !1;
+    machine::invlpg(addr as u32)
+}
+
 #[allow(unused_assignments)]
 pub fn make_present(addr: u32) {
     let mut next_frame = NEXT_FRAME_NOTEX.lock();

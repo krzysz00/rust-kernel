@@ -41,6 +41,7 @@ pub fn k_main() {
     paging::init();
     interrupts::init_idt();
     // YOU MAY NOW PAGE FAULT
+    let smp_info = acpi::smp_info();
     interrupts::init();
 
     let greet = "Hello from bare-bones Rust";
@@ -65,6 +66,8 @@ pub fn k_main() {
     vga::write_string(3,5,&string);
     unsafe { *(0xB0_00_00_01 as *mut u32) = 0xcafecafe; }
     unsafe { *(0xA0_00_10_00 as *mut mmu::Descriptor) = gdt::gdt_get(1); }
+    let processors = (*smp_info).processors.len() as u8 + ('0' as u8);
+    vga::write_char(4, 4, processors as char);
 }
 
 #[lang = "stack_exhausted"] extern fn stack_exhausted() {}
