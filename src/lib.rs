@@ -42,7 +42,7 @@ pub fn k_main() {
     interrupts::init_idt();
     // YOU MAY NOW PAGE FAULT
     let smp_info = acpi::smp_info();
-    interrupts::init();
+    interrupts::init(&(*smp_info).io_apics);
 
     let greet = "Hello from bare-bones Rust";
 

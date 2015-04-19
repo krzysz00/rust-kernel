@@ -4,7 +4,7 @@ use collections::Vec;
 use alloc::boxed::Box;
 
 use paging;
-use interrupts::apic::num_interrupts;
+use interrupts::apic::{num_interrupts,set_ioapic_id};
 
 #[repr(packed)]
 struct RSDP {
@@ -121,8 +121,8 @@ struct MADTEntry {
 pub struct IOAPIC {
     pub addr: usize,
     pub id: u8,
-    pub first_interrupt: u32,
-    pub last_interrupt: u32,
+    pub first_interrupt: u8,
+    pub last_interrupt: u8,
 }
 
 pub struct SMPInfo {
@@ -157,8 +157,8 @@ pub fn smp_info() -> Box<SMPInfo> {
                 let id = entry.f0;
                 let addr = entry.f2 as usize;
                 paging::identity_map(addr);
-                let first_interrupt = entry.f3;
-                let last_interrupt = first_interrupt + num_interrupts(addr);
+                let first_interrupt = entry.f3 as u8;
+                let last_interrupt = first_interrupt + num_interrupts(addr) as u8;
                 ret.io_apics.push(
                     IOAPIC { id: id, addr: addr,
                              first_interrupt: first_interrupt,
@@ -166,6 +166,13 @@ pub fn smp_info() -> Box<SMPInfo> {
                     });
             },
             _ => (),
+        }
+
+        let num_processors = ret.processors.len() as u8;
+        for (i, io_apic) in ret.io_apics.iter_mut().enumerate() {
+            let id = num_processors + (i as u8);
+            set_ioapic_id(io_apic.addr, id);
+            io_apic.id = id;
         }
     }
     Box::new(ret)

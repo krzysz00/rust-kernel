@@ -4,6 +4,9 @@ pub mod apic;
 
 pub use self::idt::{idtDesc};
 
+use acpi::IOAPIC;
+use collections::Vec;
+
 use machine::{inb};
 use paging;
 use vga;
@@ -63,7 +66,7 @@ pub fn init_idt() {
     idt::register_interrupt(0xFF, spurious_interrupt_handler);
 }
 
-pub fn init() {
-    apic::init();
+pub fn init(info: &Vec<IOAPIC>) {
+    apic::init(info);
     unsafe { asm!("sti" :::: "volatile") }
 }
