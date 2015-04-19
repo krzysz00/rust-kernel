@@ -22,6 +22,8 @@ RUSTFLAGS += --target=i686-unknown-elf.json --out-dir=${ODIR} -L${ODIR} -L${DEPD
 RUSTFILES = $(notdir $(wildcard ${SRCDIR}/*.rs) $(wildcard ${SRCDIR}/interrupts/*.rs))
 SFILES = $(notdir $(wildcard ${SRCDIR}/*.S) $(wildcard ${SRCDIR}/*.s))
 OFILES = $(subst .s,.o,$(subst .S,.o,$(SFILES)))
+BOOTFILES = $(sort $(filter boot%,${OFILES}))
+NON_BOOTFILES = $(filter-out boot%,${OFILES})
 
 AFILES = libasmcode.a librustcode.a
 
@@ -63,13 +65,13 @@ librlibc.rlib: rlibc.rs libcore.rlib
 	${CC} ${ASFLAGS} -c -o $@ $<
 
 libasmcode.a: ${OFILES}
-	${AR} cr ${ODIR}/$@ $(addprefix ${ODIR}/,$(filter-out mbr.o,${OFILES}))
+	${AR} cr ${ODIR}/$@ $(addprefix ${ODIR}/, ${NON_BOOTFILES})
 
 librustcode.a: ${RUSTFILES} librlibc.rlib liballoc.rlib
 	${RUSTC} ${RUSTFLAGS} ${SRCDIR}/lib.rs
 
-kernel: ${AFILES}
-	${LD} --gc-sections -N -m elf_i386 -e start -Ttext=0x7c00 -o ${ODIR}/kernel ${ODIR}/mbr.o --start-group $(addprefix ${ODIR}/,${AFILES}) --end-group
+kernel: ${BOOTFILES} ${AFILES}
+	${LD} --gc-sections -N -m elf_i386 -e start -Ttext=0x7c00 -o ${ODIR}/kernel $(addprefix ${ODIR}/, ${BOOTFILES}) --start-group $(addprefix ${ODIR}/,${AFILES}) --end-group
 
 %.bin: %
 	${OBJCOPY} -O binary ${ODIR}/$< ${ODIR}/$@
