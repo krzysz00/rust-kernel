@@ -17,6 +17,8 @@ extern crate rlibc;
 
 #[macro_use]
 mod notex;
+#[macro_use]
+mod mutex;
 
 mod machine;
 mod vga;

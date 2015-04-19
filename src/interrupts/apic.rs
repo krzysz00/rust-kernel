@@ -30,10 +30,10 @@ pub fn enable_lapic() {
     write_lapic_reg(0xF0, 0x1ff);
 }
 
-pub fn whoami() -> (u32, bool) {
+pub fn whoami() -> (u8, bool) {
     let msr = rdmsr(LAPIC_MSR_ID);
     let id = read_lapic_reg(0x20);
-    (id >> 24, (msr & LAPIC_BSP_BIT) != 0)
+    ((id >> 24) as u8, (msr & LAPIC_BSP_BIT) != 0)
 }
 
 pub fn eoi() {
@@ -101,6 +101,6 @@ pub fn init(info: &Vec<IOAPIC>) {
     enable_lapic();
     let (lapic_id, is_bsp) = whoami();
     if is_bsp {
-        direct_irq(ioapic_for(info, 0x1), 0x1, 0x21, lapic_id);
+        direct_irq(ioapic_for(info, 0x1), 0x1, 0x21, lapic_id as u32);
     }
 }

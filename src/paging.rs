@@ -1,5 +1,6 @@
 use machine;
 use notex::Notex;
+use mutex::Mutex;
 
 const PAGE_TABLE_ENTRIES: usize = 1024;
 const PAGE_TABLE_SIZE: usize = 4096;
@@ -10,7 +11,7 @@ type PageTable = [u32; PAGE_TABLE_ENTRIES];
 // Overallocate. We'll loop through it to get a page-aligned piece of memory
 static INITIAL_TABLE_NOTEX: Notex<[u32; PAGE_TABLE_ENTRIES * 3]> = notex!([0; PAGE_TABLE_ENTRIES * 3]);
 
-static NEXT_FRAME_NOTEX: Notex<u32> = notex!(0x100);
+static NEXT_FRAME_MUTEX: Mutex<u32> = mutex!(0x100);
 
 fn page_table_for(vaddr: u32, next_frame: &mut u32) -> &'static mut PageTable {
     let pd_index = vaddr >> 22;
@@ -26,7 +27,7 @@ fn page_table_for(vaddr: u32, next_frame: &mut u32) -> &'static mut PageTable {
 }
 
 pub fn identity_map(addr: usize) {
-    let mut next_frame = NEXT_FRAME_NOTEX.lock();
+    let mut next_frame = NEXT_FRAME_MUTEX.lock();
     let frame_num = addr >> 12;
     let page_index = frame_num & 0x3ff;
     let pt = page_table_for(addr as u32, &mut *next_frame);
@@ -34,7 +35,7 @@ pub fn identity_map(addr: usize) {
 }
 
 pub fn forget(addr: usize) {
-    let mut next_frame = NEXT_FRAME_NOTEX.lock();
+    let mut next_frame = NEXT_FRAME_MUTEX.lock();
     let page_index = (addr >> 12) & 0x3ff;
     let pt = page_table_for(addr as u32, &mut *next_frame);
     pt[page_index] &= !1;
@@ -43,7 +44,7 @@ pub fn forget(addr: usize) {
 
 #[allow(unused_assignments)]
 pub fn make_present(addr: u32) {
-    let mut next_frame = NEXT_FRAME_NOTEX.lock();
+    let mut next_frame = NEXT_FRAME_MUTEX.lock();
     let page_number = (addr >> 12) & 0x3ff;
     let pt = page_table_for(addr, &mut *next_frame);
     pt[page_number as usize] = *next_frame << 12 | PRESENT_RW;
