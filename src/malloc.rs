@@ -2,10 +2,10 @@ const HEAP_START: usize = 0xC0_00_00_00;
 const HEAP_END: usize = 0xD0_00_00_00;
 
 use core;
-use notex::Notex;
+use mutex::Mutex;
 use rlibc;
 
-static HEAP_PTR_NOTEX: Notex<usize> = notex!(HEAP_START);
+static HEAP_PTR_NOTEX: Mutex<usize> = mutex!(HEAP_START);
 
 #[no_mangle]
 pub extern fn rust_allocate(size: usize, align: usize) -> *mut u8 {
