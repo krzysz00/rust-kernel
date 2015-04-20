@@ -10,6 +10,7 @@ extern crate alloc;
 extern crate collections;
 
 use core::prelude::*;
+use core::fmt::Write;
 use core::atomic::Ordering;
 use alloc::boxed::Box;
 use collections::string::String;
@@ -22,6 +23,7 @@ mod notex;
 mod mutex;
 
 mod machine;
+mod console;
 mod vga;
 mod mmu;
 mod gdt;
@@ -52,7 +54,7 @@ pub fn k_main() {
         smp::init(&(*smp_info).processors);
 
         let greet = "Hello from bare-bones Rust";
-
+        let _ = console::Console.write_str("Hello");
         for i in 0..vga::ROWS {
             for j in 0..vga::COLS {
             vga::write_char_with_color(i, j, ' ', White, LightBlue);
