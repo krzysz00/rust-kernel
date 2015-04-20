@@ -2,7 +2,7 @@
 use core::prelude::*;
 use core::cell::UnsafeCell;
 use core::ops::{Deref,DerefMut};
-use core::atomic::{fence, Ordering, AtomicBool, ATOMIC_BOOL_INIT};
+use core::atomic::{fence, Ordering, AtomicBool};
 
 pub struct Mutex<T> {
     pub lock: AtomicBool,

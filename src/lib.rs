@@ -38,6 +38,7 @@ pub use interrupts::{double_fault_handler, gpf_handler,
                      page_fault_handler, kbd_interrupt_handler };
 pub use malloc::{rust_allocate, rust_reallocate, rust_reallocate_inplace,
                  rust_deallocate, rust_usable_size, rust_stats_print };
+pub use smp::{SMP_STACK_PTR, SMP_CR3};
 
 #[lang="start"]
 #[no_mangle]
@@ -48,6 +49,7 @@ pub fn k_main() {
         // YOU MAY NOW PAGE FAULT
         let smp_info = acpi::smp_info();
         interrupts::init(&(*smp_info).io_apics);
+        smp::init(&(*smp_info).processors);
 
         let greet = "Hello from bare-bones Rust";
 
@@ -73,6 +75,10 @@ pub fn k_main() {
         unsafe { *(0xA0_00_10_00 as *mut mmu::Descriptor) = gdt::gdt_get(1); }
         let processors = smp::processor_count.load(Ordering::SeqCst) as u8 + '0' as u8;
         vga::write_char(4, 4, processors as char);
+    }
+    else { // Non-main processor
+        interrupts::apic::enable_lapic();
+        loop {};
     }
 }
 

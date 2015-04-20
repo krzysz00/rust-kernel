@@ -14,12 +14,12 @@ const IOAPIC_BASE: usize = 0xFEC0_0000;
 
 fn read_lapic_reg(reg: u32) -> u32 {
     let addr = (LAPIC_BASE as u32) | reg;
-    unsafe { *(addr as *const u32) }
+    unsafe { volatile_load(addr as *const u32) }
 }
 
 fn write_lapic_reg(reg: u32, val: u32) {
     let addr = (LAPIC_BASE as u32) | reg;
-    unsafe { *(addr as *mut u32) = val; }
+    unsafe { volatile_store(addr as *mut u32,  val); }
 }
 
 pub fn enable_lapic() {
@@ -89,9 +89,13 @@ pub fn mask_irq(addr: usize, irq: u8) {
     write_ioapic_reg(addr, irq_reg, direction | (1 << 16));
 }
 
-pub fn send_interrupt(lapic_id: u32, irq: u32) {
-    write_lapic_reg(0x310, lapic_id << 24);
+pub fn send_interrupt(lapic_id: u8, irq: u32) {
+    write_lapic_reg(0x310, (lapic_id as u32) << 24);
     write_lapic_reg(0x300, irq);
+}
+
+pub fn wait_for_delivery() {
+    while read_lapic_reg(0x300) & (1 << 12) != 0 {}
 }
 
 pub fn init(info: &Vec<IOAPIC>) {

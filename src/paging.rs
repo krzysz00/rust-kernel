@@ -1,6 +1,7 @@
 use machine;
 use notex::Notex;
 use mutex::Mutex;
+use smp;
 
 const PAGE_TABLE_ENTRIES: usize = 1024;
 const PAGE_TABLE_SIZE: usize = 4096;
@@ -68,6 +69,7 @@ pub fn init() {
         }
 
         (*pd)[1023] = (alligned_pd_addr as u32) | PRESENT_RW; // The "recursive paging trick"
+        smp::SMP_CR3.store(alligned_pd_addr, ::core::atomic::Ordering::SeqCst);
         machine::enable_paging(alligned_pd_addr as *const u32);
     }
 }

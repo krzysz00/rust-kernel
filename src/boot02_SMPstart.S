@@ -43,4 +43,4 @@ SMPBegin:
 SMP_end:
         .skip 512 - (SMP_end - SMPStart)
 smp_init_vector:
-        jmp SMPBegin
+        ljmp $0, $SMPBegin
