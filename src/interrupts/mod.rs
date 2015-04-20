@@ -42,7 +42,7 @@ pub extern fn page_fault_handler(address: u32, error: u32) {
         vga::write_string(0, 0, "Weird page fault");
         loop {};
     }
-    paging::make_present(address);
+    paging::make_present(address as usize);
 }
 
 #[no_mangle]

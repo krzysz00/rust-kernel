@@ -42,11 +42,11 @@ pub fn forget(addr: usize) {
 }
 
 #[allow(unused_assignments)]
-pub fn make_present(addr: u32) {
+pub fn make_present(addr: usize) {
     let mut next_frame = NEXT_FRAME_MUTEX.lock();
     let page_number = (addr >> 12) & 0x3ff;
-    let pt = page_table_for(addr, &mut *next_frame);
-    pt[page_number as usize] = *next_frame << 12 | PRESENT_RW;
+    let pt = page_table_for(addr as u32, &mut *next_frame);
+    pt[page_number] = *next_frame << 12 | PRESENT_RW;
     *next_frame += 1;
 }
 
