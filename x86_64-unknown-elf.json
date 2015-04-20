@@ -8,6 +8,7 @@
         "arch": "x86_64",
                 "pre-link-args": ["-m64"],
                 "no-compiler-rt": true,
+                "disable-redzone": true,
                 "eliminate-frame-pointer": false,
                 "linker_is_gnu": true,
         "morestack": false
