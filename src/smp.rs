@@ -34,7 +34,7 @@ pub fn init(processors: &Vec<u8>) {
         let startup_address: u32 = smp_init_vector as u32;
         for (number, id) in processors.iter().enumerate() {
             let stack_loc = 0x120_000 + (8192 * number);
-            SMP_STACK_PTR.store(0x120_000 + (8192 * number), Ordering::SeqCst);
+            SMP_STACK_PTR.store(stack_loc, Ordering::SeqCst);
             if *id != self_id {
                 unsafe {
                     // Trigger the page fault in advance
