@@ -1,4 +1,3 @@
-// Notex - it's not a mutex, but it acts like one
 use core::prelude::*;
 use core::cell::UnsafeCell;
 use core::ops::{Deref,DerefMut};

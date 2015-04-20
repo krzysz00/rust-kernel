@@ -5,11 +5,11 @@ use core;
 use mutex::Mutex;
 use rlibc;
 
-static HEAP_PTR_NOTEX: Mutex<usize> = mutex!(HEAP_START);
+static HEAP_PTR_MUTEX: Mutex<usize> = mutex!(HEAP_START);
 
 #[no_mangle]
 pub extern fn rust_allocate(size: usize, align: usize) -> *mut u8 {
-    let mut heap_ptr = HEAP_PTR_NOTEX.lock();
+    let mut heap_ptr = HEAP_PTR_MUTEX.lock();
     let new_heap_ptr  = *heap_ptr & !(align - 1);
 
     if new_heap_ptr + size >= HEAP_END {

@@ -132,7 +132,7 @@ pub struct SMPInfo {
 
 impl SMPInfo {
     fn new() -> SMPInfo {
-        SMPInfo { processors: Vec::with_capacity(4),
+        SMPInfo { processors: Vec::new(),
                   io_apics: Vec::with_capacity(2),
         }
     }

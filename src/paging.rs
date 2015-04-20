@@ -1,16 +1,14 @@
 use machine;
-use notex::Notex;
 use mutex::Mutex;
 use smp;
 
 const PAGE_TABLE_ENTRIES: usize = 1024;
-const PAGE_TABLE_SIZE: usize = 4096;
 const PRESENT_RW: u32 = 0b11;
 
 type PageTable = [u32; PAGE_TABLE_ENTRIES];
 
 // Overallocate. We'll loop through it to get a page-aligned piece of memory
-static INITIAL_TABLE_NOTEX: Notex<[u32; PAGE_TABLE_ENTRIES * 3]> = notex!([0; PAGE_TABLE_ENTRIES * 3]);
+// static INITIAL_TABLE_NOTEX: Notex<[u32; PAGE_TABLE_ENTRIES * 3]> = notex!([0; PAGE_TABLE_ENTRIES * 3]);
 
 static NEXT_FRAME_MUTEX: Mutex<u32> = mutex!(0x100);
 
@@ -54,11 +52,7 @@ pub fn make_present(addr: u32) {
 
 pub fn init() {
     unsafe {
-        let initial_table_area = *INITIAL_TABLE_NOTEX.lock();
-        let unalligned_pd_addr = initial_table_area[0] as *const u32 as usize;
-        let alligned_pd_addr = unalligned_pd_addr +
-            (PAGE_TABLE_SIZE -
-             (unalligned_pd_addr % PAGE_TABLE_SIZE));
+        let alligned_pd_addr = 0x1000;
         let pd = alligned_pd_addr as *mut PageTable;
 
         let first_pt: *mut PageTable = pd.offset(1);
