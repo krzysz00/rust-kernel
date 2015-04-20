@@ -36,9 +36,9 @@ _ltr:
 _rdmsr:
         mov %edi, %ecx
         rdmsr
-        shl $32, %rdi
-        or %rax, %rdi
-        ret
+        shl $32, %rdx
+        or %rdx, %rax
+        retq
 
         .globl _wrmsr
         # _wrmsr (uint32_t id, uint64_t value)
@@ -48,9 +48,9 @@ _wrmsr:
         shr $32, %rsi
         mov %rsi, %rdx
         wrmsr
-        ret
+        retq
 
 _invlpg:
         invlpg (%rdi)
-        ret
+        retq
 

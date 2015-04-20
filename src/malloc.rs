@@ -10,8 +10,13 @@ static HEAP_PTR_MUTEX: Mutex<usize> = mutex!(HEAP_START);
 #[no_mangle]
 pub extern fn rust_allocate(size: usize, align: usize) -> *mut u8 {
     let mut heap_ptr = HEAP_PTR_MUTEX.lock();
-    let new_heap_ptr  = *heap_ptr & !(align - 1);
-
+    let new_heap_ptr = *heap_ptr +
+        if *heap_ptr % align == 0 {
+            0
+        }
+        else {
+            align - (*heap_ptr % align)
+        };
     if new_heap_ptr + size >= HEAP_END {
         core::ptr::null_mut()
     }

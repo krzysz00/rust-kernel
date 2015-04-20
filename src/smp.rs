@@ -44,7 +44,7 @@ pub fn init(processors: &Vec<u8>) {
                 }
                 let old_processors_count = processor_count.load(Ordering::Relaxed);
                 send_startup_interrupt(startup_address, *id);
-                // while processor_count.load(Ordering::SeqCst) <= old_processors_count { };
+                while processor_count.load(Ordering::SeqCst) <= old_processors_count { };
             }
         }
     }

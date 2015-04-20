@@ -5,7 +5,7 @@
         .extern SMP_CR3
         .extern k_main
         .section .text
-SMPStart:
+SMPLongStart:
         cli
         # Enable SSE
         mov %cr0, %rax
@@ -21,15 +21,8 @@ SMPStart:
         mov SMP_STACK_PTR, %rsp
         callq k_main
 
-        .code16
-SMPBegin:
-        cli
-        mov $0, %ax
-        mov %ax, %ds
-        mov %ax, %ss
-
-        lgdt gdtDesc
-
+        .code32
+SMPStart:
         mov SMP_CR3, %eax
         mov %eax, %cr3
 
@@ -45,7 +38,23 @@ SMPBegin:
         wrmsr
 
         mov %cr0, %eax
-        or $(1 << 31 | 1), %eax
+        or $(1 << 31), %eax
+        mov %eax, %cr0
+
+        lgdt gdtDesc
+        ljmp $8, $SMPLongStart
+
+        .code16
+SMPBegin:
+        cli
+        mov $0, %ax
+        mov %ax, %ds
+        mov %ax, %ss
+
+        lgdt gdtDesc32
+
+        mov %cr0, %eax
+        or $1, %eax
         mov %eax, %cr0
 
         mov $0x10, %ax
@@ -57,6 +66,6 @@ SMPBegin:
 
         ljmp $8, $SMPStart
 SMP_end:
-        .skip 512 - (SMP_end - SMPStart)
+        .skip 512 - (SMP_end - SMPLongStart)
 smp_init_vector:
         ljmp $0, $SMPBegin
