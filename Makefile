@@ -6,6 +6,7 @@ SRCDIR = src
 DEPDIR = deps
 
 vpath %.rs src
+vpath %.rs src/interrupts/
 vpath %.rs deps
 vpath %.rlib deps
 vpath %.S src
@@ -18,9 +19,11 @@ RUSTC = rustc
 RUSTFLAGS_LIBS = --target=x86_64-unknown-elf.json --out-dir=${DEPDIR} -L${DEPDIR} --crate-type=rlib -C opt-level=3 -Z no-landing-pads
 RUSTFLAGS += --target=x86_64-unknown-elf.json --out-dir=${ODIR} -L${ODIR} -L${DEPDIR} -g -C opt-level=3 -Z no-landing-pads
 
-RUSTFILES = $(notdir $(wildcard ${SRCDIR}/*.rs))
+RUSTFILES = $(notdir $(wildcard ${SRCDIR}/*.rs) $(wildcard ${SRCDIR}/interrupts/*.rs))
 SFILES = $(notdir $(wildcard ${SRCDIR}/*.S) $(wildcard ${SRCDIR}/*.s))
 OFILES = $(subst .s,.o,$(subst .S,.o,$(SFILES)))
+BOOTFILES = $(sort $(filter boot%,${OFILES}))
+NON_BOOTFILES = $(filter-out boot%,${OFILES})
 
 AFILES = libasmcode.a librustcode.a
 
@@ -46,10 +49,10 @@ libcore.rlib: x86_64-unknown-elf.json
 liballoc.rlib: libcore.rlib
 	${RUSTC} ${RUSTFLAGS_LIBS} --cfg feature=\"external_funcs\" ${RUSTSRC}/src/liballoc/lib.rs
 
-libunicode.rlib: libcore.rlib
-	${RUSTC} ${RUSTFLAGS_LIBS} ${RUSTSRC}/src/libunicode/lib.rs
+librustc_unicode.rlib: libcore.rlib
+	${RUSTC} ${RUSTFLAGS_LIBS} ${RUSTSRC}/src/librustc_unicode/lib.rs
 
-libcollections.rlib: liballoc.rlib libunicode.rlib
+libcollections.rlib: liballoc.rlib librustc_unicode.rlib
 	${RUSTC} ${RUSTFLAGS_LIBS} ${RUSTSRC}/src/libcollections/lib.rs
 
 librlibc.rlib: rlibc.rs libcore.rlib
@@ -62,13 +65,13 @@ librlibc.rlib: rlibc.rs libcore.rlib
 	${CC} ${ASFLAGS} -c -o $@ $<
 
 libasmcode.a: ${OFILES}
-	${AR} cr ${ODIR}/$@ $(addprefix ${ODIR}/,$(filter-out mbr.o,${OFILES}))
+	${AR} cr ${ODIR}/$@ $(addprefix ${ODIR}/, ${NON_BOOTFILES})
 
-librustcode.a: ${RUSTFILES} librlibc.rlib liballoc.rlib
+librustcode.a: ${RUSTFILES} librlibc.rlib libcollections.rlib
 	${RUSTC} ${RUSTFLAGS} ${SRCDIR}/lib.rs
 
-kernel: ${AFILES}
-	${LD} --gc-sections -N -m elf_x86_64 -z max-page-size=0x1000 -e start -Ttext=0x7c00 -o ${ODIR}/kernel ${ODIR}/mbr.o --start-group $(addprefix ${ODIR}/,${AFILES}) --end-group
+kernel: ${BOOTFILES} ${AFILES}
+	${LD} --gc-sections -N -m elf_x86_64 -z max-page-size=0x1000 -e start -Ttext=0x7c00 -o ${ODIR}/kernel $(addprefix ${ODIR}/, ${BOOTFILES}) --start-group $(addprefix ${ODIR}/,${AFILES}) --end-group
 
 %.bin: %
 	${OBJCOPY} -O binary ${ODIR}/$< ${ODIR}/$@

@@ -1,10 +1,12 @@
-use notex::Notex;
+use machine;
+use mutex::Mutex;
+use smp;
 
 const PAGE_TABLE_ENTRIES: usize = 512;
 
 type PageTable = [u64; PAGE_TABLE_ENTRIES];
 
-static NEXT_FRAME_NOTEX: Notex<u64> = notex!(0x200);
+static NEXT_FRAME_MUTEX: Mutex<u64> = mutex!(0x200);
 
 const MAPPING_BASE: u64 = (511 << 39) | (0xffff << 48);
 const PML4_MAPPING: u64 = 0xffff_ffff_ffff_f000;
@@ -12,6 +14,7 @@ const PML4_MAPPING: u64 = 0xffff_ffff_ffff_f000;
 const PRESENT_RW: u64 = 0b11;
 
 const NINE_BITS: u64 = 0x1ff;
+const NINE_BITS_USIZE: usize = 0x1ff;
 
 #[inline]
 fn address_of_table(pdp: u64, pd: u64, pt: u64) -> u64 {
@@ -57,11 +60,31 @@ fn ensure_pt(vaddr: u64, next_frame: &mut u64) -> &'static mut PageTable {
     }
 }
 
+pub fn identity_map(addr: usize) {
+    let mut next_frame = NEXT_FRAME_MUTEX.lock();
+    let frame_num = addr >> 12;
+    let page_index = frame_num & NINE_BITS_USIZE;
+    let pt = ensure_pt(addr as u64, &mut *next_frame);
+    pt[page_index] = (frame_num as u64) << 12 | PRESENT_RW;
+}
+
+pub fn forget(addr: usize) {
+    let mut next_frame = NEXT_FRAME_MUTEX.lock();
+    let page_index = (addr >> 12) & NINE_BITS_USIZE;
+    let pt = ensure_pt(addr as u64, &mut *next_frame);
+    pt[page_index] &= !1;
+    machine::invlpg(addr as u64)
+}
+
 #[allow(unused_assignments)]
-pub fn make_present(vaddr: u64) {
-    let mut next_frame = NEXT_FRAME_NOTEX.lock();
-    let pt_index = (vaddr >> 12) & NINE_BITS;
-    let pt = ensure_pt(vaddr, &mut next_frame);
-    pt[pt_index as usize] = *next_frame << 12 | 0b11;
+pub fn make_present(vaddr: usize) {
+    let mut next_frame = NEXT_FRAME_MUTEX.lock();
+    let pt_index = (vaddr >> 12) & NINE_BITS_USIZE;
+    let pt = ensure_pt(vaddr as u64, &mut next_frame);
+    pt[pt_index] = *next_frame << 12 | 0b11;
     *next_frame += 1;
+}
+
+pub fn init() {
+    smp::SMP_CR3.store(0x1000, ::core::atomic::Ordering::SeqCst);
 }

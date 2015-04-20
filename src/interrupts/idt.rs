@@ -29,5 +29,10 @@ pub fn init() {
 
 pub fn register_interrupt(number: usize, handler: unsafe extern fn()) {
     let mut idt = IDT_NOTEX.lock();
-    idt[number].set_interrupt_descriptor(0x08, handler as u64, 0);
+    idt[number].set_descriptor(0x08, handler as u64, 0, 0xE);
+}
+
+pub fn register_trap(number: usize, handler: unsafe extern fn()) {
+    let mut idt = IDT_NOTEX.lock();
+    idt[number].set_descriptor(0x08, handler as u64, 0, 0xF);
 }

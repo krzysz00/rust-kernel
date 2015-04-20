@@ -14,6 +14,8 @@
         .globl kbd_interrupt_wrapper
         .extern kbd_interrupt_handler
 
+        .globl spurious_interrupt_handler
+
         .macro pushregs
         pushq %rax
         pushq %rbx
@@ -62,13 +64,11 @@ _loop:      jmp _loop
 
 gpf_wrapper:
         pushregs
-        cli
         mov 128(%rsp), %rdi
         cld
         call gpf_handler
         popregs
         add $8, %esp
-        sti
         iretq
 
 page_fault_wrapper:
@@ -79,14 +79,14 @@ page_fault_wrapper:
         call page_fault_handler
         popregs
         add $8, %rsp
-        sti
         iretq
 
 kbd_interrupt_wrapper:
         pushregs
-        cli
         cld
         call kbd_interrupt_handler
         popregs
-        sti
+        iretq
+
+spurious_interrupt_handler:
         iretq

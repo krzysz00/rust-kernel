@@ -31,3 +31,26 @@ _ltr:
 	ltr %ax
 	retq
 
+        .globl _rdmsr
+        # uint64_t _rdmsr(uint32_t id)
+_rdmsr:
+        mov %edi, %ecx
+        rdmsr
+        shl $32, %rdi
+        or %rax, %rdi
+        ret
+
+        .globl _wrmsr
+        # _wrmsr (uint32_t id, uint64_t value)
+_wrmsr:
+        mov %rdi, %rcx
+        mov %rsi, %rax
+        shr $32, %rsi
+        mov %rsi, %rdx
+        wrmsr
+        ret
+
+_invlpg:
+        invlpg (%rdi)
+        ret
+
