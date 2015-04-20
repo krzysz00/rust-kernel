@@ -67,7 +67,7 @@ librlibc.rlib: rlibc.rs libcore.rlib
 libasmcode.a: ${OFILES}
 	${AR} cr ${ODIR}/$@ $(addprefix ${ODIR}/, ${NON_BOOTFILES})
 
-librustcode.a: ${RUSTFILES} librlibc.rlib liballoc.rlib
+librustcode.a: ${RUSTFILES} librlibc.rlib libcollections.rlib
 	${RUSTC} ${RUSTFLAGS} ${SRCDIR}/lib.rs
 
 kernel: ${BOOTFILES} ${AFILES}
