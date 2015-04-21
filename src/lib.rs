@@ -54,8 +54,7 @@ pub fn k_main() {
         smp::init(&(*smp_info).processors);
 
         let greet = "Hello from bare-bones Rust";
-        let _ = write!(console::Console, "SMP at {:p}", smp_info);
-//        let _ = console::Console.write_str("Hello");
+        let _ = console::Console.write_str("Hello");
         for i in 0..vga::ROWS {
             for j in 0..vga::COLS {
             vga::write_char_with_color(i, j, ' ', White, LightBlue);
