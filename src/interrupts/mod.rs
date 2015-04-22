@@ -4,9 +4,6 @@ pub mod apic;
 
 pub use self::idt::{idtDesc};
 
-use acpi::IOAPIC;
-use collections::Vec;
-
 use machine::{inb};
 use paging;
 use vga;
@@ -52,7 +49,6 @@ pub extern fn kbd_interrupt_handler() {
     apic::eoi();
 }
 
-// Remaps the PIC, masks everything
 pub fn init_idt() {
     idt::init();
 
@@ -66,7 +62,8 @@ pub fn init_idt() {
     idt::register_interrupt(0xFF, spurious_interrupt_handler);
 }
 
-pub fn init(info: &Vec<IOAPIC>) {
-    apic::init(info);
+// Needs the IO APIC to have an ID
+pub fn init() {
+    apic::init();
     unsafe { asm!("sti" :::: "volatile") }
 }

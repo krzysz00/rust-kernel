@@ -4,7 +4,7 @@ use collections::Vec;
 use alloc::boxed::Box;
 
 use paging;
-use interrupts::apic::{num_interrupts,set_ioapic_id};
+use interrupts::apic::{set_ioapic_id};
 
 #[repr(packed)]
 struct RSDP {
@@ -112,34 +112,14 @@ pub fn find_table(name: &[u8; 4]) -> Option<&'static Header> {
 struct MADTEntry {
     kind: u8,
     length: u8,
-    f0: u8,
+    _f0: u8,
     f1: u8,
     f2: u32,
-    f3: u32,
+    _f3: u32,
 }
 
-pub struct IOAPIC {
-    pub addr: usize,
-    pub id: u8,
-    pub first_interrupt: u8,
-    pub last_interrupt: u8,
-}
-
-pub struct SMPInfo {
-    pub processors: Vec<u8>,
-    pub io_apics: Vec<IOAPIC>
-}
-
-impl SMPInfo {
-    fn new() -> SMPInfo {
-        SMPInfo { processors: Vec::new(),
-                  io_apics: Vec::with_capacity(2),
-        }
-    }
-}
-
-pub fn smp_info() -> Box<SMPInfo> {
-    let mut ret = SMPInfo::new();
+pub fn smp_info() -> Box<Vec<u8>> {
+    let mut ret = Vec::new();
     let table = find_table(b"APIC").unwrap();
     let mut addr = table as *const Header as usize;
     let stop = table.length as usize + addr;
@@ -150,30 +130,13 @@ pub fn smp_info() -> Box<SMPInfo> {
         match entry.kind {
             0 => {
                 if entry.f2 & 1 == 1 {
-                    ret.processors.push(entry.f1);
+                    ret.push(entry.f1);
                 }
-            },
-            1 => {
-                let id = entry.f0;
-                let addr = entry.f2 as usize;
-                paging::identity_map(addr);
-                let first_interrupt = entry.f3 as u8;
-                let last_interrupt = first_interrupt + num_interrupts(addr) as u8;
-                ret.io_apics.push(
-                    IOAPIC { id: id, addr: addr,
-                             first_interrupt: first_interrupt,
-                             last_interrupt: last_interrupt,
-                    });
             },
             _ => (),
         }
-
-        let num_processors = ret.processors.len() as u8;
-        for (i, io_apic) in ret.io_apics.iter_mut().enumerate() {
-            let id = num_processors + (i as u8);
-            set_ioapic_id(io_apic.addr, id);
-            io_apic.id = id;
-        }
     }
+    let num_processors = ret.len() as u8;
+    set_ioapic_id(num_processors);
     Box::new(ret)
 }
