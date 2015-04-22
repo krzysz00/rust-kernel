@@ -19,7 +19,7 @@ pub static SMP_CR3: AtomicUsize = ATOMIC_USIZE_INIT;
 fn send_startup_interrupt(address: u32, id: u8) {
     outb(0x70, 0x0F);
     outb(0x71, 0x0A);
-    unsafe {*(0x469 as *mut u32) = address; }
+    unsafe { ::core::intrinsics::volatile_store(0x469 as *mut u32, address); }
     let interrupt = 0x4500;
     apic::send_interrupt(id, interrupt);
     apic::wait_for_delivery();
