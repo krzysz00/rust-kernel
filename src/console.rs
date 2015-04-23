@@ -9,7 +9,7 @@ impl Write for Console {
     fn write_str(&mut self, data: &str) -> Result<(), Error> {
         for b in data.bytes() {
             while machine::inb(PORT + 5) & 0x20 == 0 {};
-            machine::outb(PORT, b as u8);
+            machine::outb(PORT, b);
         }
         Result::Ok(())
     }

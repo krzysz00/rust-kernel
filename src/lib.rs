@@ -10,7 +10,7 @@ extern crate alloc;
 extern crate collections;
 
 use core::prelude::*;
-use core::fmt::Write;
+use core::fmt::{self,Write};
 use core::atomic::Ordering;
 use alloc::boxed::Box;
 use collections::string::String;
@@ -75,6 +75,7 @@ pub fn k_main() {
         unsafe { *(0xA0_00_10_00 as *mut mmu::Descriptor) = gdt::gdt_get(1); }
         let processors = smp::processor_count.load(Ordering::SeqCst) as u8 + '0' as u8;
         vga::write_char(4, 4, processors as char);
+        panic!("Test panic");
     }
     else { // Non-main processor
         interrupts::apic::enable_lapic();
@@ -86,5 +87,9 @@ pub fn k_main() {
 #[lang = "eh_personality"] extern fn eh_personality() {}
 
 #[lang = "panic_fmt"]
-#[inline(always)]
-fn panic_fmt() -> ! { unsafe { ::core::intrinsics::abort() } }
+pub extern fn rust_begin_unwind(args: fmt::Arguments,
+                                file: &'static str, line: u32) -> ! {
+    let _ = write!(console::Console, "\nPanic at {}:{}: ", file, line);
+    let _ = console::Console.write_fmt(args);
+    loop {};
+}
