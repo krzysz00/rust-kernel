@@ -4,7 +4,6 @@ use collections::Vec;
 use alloc::boxed::Box;
 
 use paging;
-use interrupts::apic::{set_ioapic_id};
 
 #[repr(packed)]
 struct RSDP {
@@ -136,7 +135,5 @@ pub fn smp_info() -> Box<Vec<u8>> {
             _ => (),
         }
     }
-    let num_processors = ret.len() as u8;
-    set_ioapic_id(num_processors);
     Box::new(ret)
 }

@@ -31,6 +31,7 @@ fn send_startup_interrupt(address: u32, id: u8) {
 pub fn init(processors: &Vec<u8>) {
     let (self_id, is_bsp) = apic::whoami();
     if is_bsp {
+        apic::set_ioapic_id(processors.len() as u8);
         let startup_address: u32 = smp_init_vector as u32;
         for (number, id) in processors.iter().enumerate() {
             let stack_loc = 0x120_000 + (8192 * number);

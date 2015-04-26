@@ -57,7 +57,7 @@ fn write_ioapic_reg(reg: u8, value: u32) {
 }
 
 pub fn set_ioapic_id(id: u8) {
-    write_ioapic_reg(0x0, (id as u32) << 24);
+    write_ioapic_reg(0x0, (id as u32) << 24 | read_ioapic_reg(0x0));
 }
 
 pub fn direct_irq(irq: u8, vector: u8, dest: u32) {
