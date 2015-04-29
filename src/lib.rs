@@ -10,7 +10,7 @@ extern crate alloc;
 extern crate collections;
 
 use core::prelude::*;
-use core::fmt::{self,Write};
+use core::fmt;
 use core::atomic::Ordering;
 use alloc::boxed::Box;
 use collections::string::String;
@@ -52,7 +52,7 @@ pub fn k_main() {
         smp::init(&(*smp_info));
 
         let greet = "Hello from bare-bones Rust";
-        let _ = console::Console.write_str("Hello");
+        console::puts("Hello");
         for i in 0..vga::ROWS {
             for j in 0..vga::COLS {
             vga::write_char_with_color(i, j, ' ', White, LightBlue);
@@ -89,6 +89,7 @@ pub fn k_main() {
 #[lang = "panic_fmt"]
 pub extern fn rust_begin_unwind(args: fmt::Arguments,
                                 file: &'static str, line: u32) -> ! {
+    use core::fmt::Write;
     let _ = write!(console::Console, "\nPanic at {}:{}: ", file, line);
     let _ = console::Console.write_fmt(args);
     loop {};

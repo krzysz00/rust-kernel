@@ -14,3 +14,7 @@ impl Write for Console {
         Result::Ok(())
     }
 }
+
+pub fn puts(string: &str) {
+    let _ = Console.write_str(string);
+}
