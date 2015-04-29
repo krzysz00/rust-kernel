@@ -18,3 +18,11 @@ impl Write for Console {
 pub fn puts(string: &str) {
     let _ = Console.write_str(string);
 }
+
+#[macro_export]
+macro_rules! log {
+    ($($arg:tt)*) => ({
+        use ::core::fmt::Write;
+        let _ = write!($crate::console::Console, $($arg)*);
+    })
+}

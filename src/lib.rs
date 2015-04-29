@@ -21,7 +21,9 @@ extern crate rlibc;
 mod mutex;
 
 mod machine;
+#[macro_use]
 mod console;
+
 mod vga;
 mod mmu;
 mod gdt;
@@ -90,7 +92,7 @@ pub fn k_main() {
 pub extern fn rust_begin_unwind(args: fmt::Arguments,
                                 file: &'static str, line: u32) -> ! {
     use core::fmt::Write;
-    let _ = write!(console::Console, "\nPanic at {}:{}: ", file, line);
+    log!("\r\nPanic at {}:{}: ", file, line);
     let _ = console::Console.write_fmt(args);
     loop {};
 }
