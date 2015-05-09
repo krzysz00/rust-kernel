@@ -166,13 +166,7 @@ fn find_block_of_order<'r>(order: u8) -> Option<&'r mut Block> {
             Some(&mut *maybe_head)
         }
         else {
-            match find_block_of_order(order + 1) {
-                Some(block) => {
-                    block.split();
-                    Some(block)
-                }
-                None => None
-            }
+            find_block_of_order(order + 1).map(|block| block.split())
         }
     }
 }
