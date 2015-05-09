@@ -38,11 +38,11 @@ unsafe fn to_block<'r>(ptr: *mut u8) -> &'r mut Block {
 }
 
 impl Block {
-    unsafe fn to_pointer(&mut self) -> *mut u8 {
+    fn to_pointer(&mut self) -> *mut u8 {
         &mut self.magic[0] as *mut u8
     }
 
-    unsafe fn to_const_pointer(&self) -> *const u8 {
+    fn to_const_pointer(&self) -> *const u8 {
         &self.magic[0] as *const u8
     }
 
