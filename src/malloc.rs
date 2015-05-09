@@ -50,7 +50,7 @@ impl Block {
         unsafe {
             let addr = self.to_const_pointer() as usize;
             let buddy_addr = addr ^ ((1 << (self.order + BLOCK_BITS)) as usize);
-            &mut *to_block(buddy_addr as *mut u8)
+            to_block(buddy_addr as *mut u8)
         }
     }
 
