@@ -1,7 +1,6 @@
 use core::prelude::*;
 use core::mem::size_of;
 use collections::Vec;
-use alloc::boxed::Box;
 
 use paging;
 
@@ -117,7 +116,7 @@ struct MADTEntry {
     _f3: u32,
 }
 
-pub fn smp_info() -> Box<Vec<u8>> {
+pub fn processor_list() -> Vec<u8> {
     let mut ret = Vec::new();
     let table = find_table(b"APIC").unwrap();
     let mut addr = table as *const Header as usize;
@@ -135,5 +134,5 @@ pub fn smp_info() -> Box<Vec<u8>> {
             _ => (),
         }
     }
-    Box::new(ret)
+    ret
 }

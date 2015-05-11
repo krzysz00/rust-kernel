@@ -19,6 +19,8 @@ extern crate rlibc;
 
 #[macro_use]
 mod mutex;
+#[macro_use]
+mod notex;
 
 mod machine;
 #[macro_use]
@@ -49,9 +51,8 @@ pub fn k_main() {
         paging::init();
         interrupts::init_idt();
         // YOU MAY NOW PAGE FAULT
-        let smp_info = acpi::smp_info();
         interrupts::init();
-        smp::init(&(*smp_info));
+        smp::init();
 
         let greet = "Hello from bare-bones Rust";
         console::puts("Hello");
@@ -77,10 +78,12 @@ pub fn k_main() {
         unsafe { *(0xA0_00_10_00 as *mut mmu::Descriptor) = gdt::gdt_get(1); }
         let processors = smp::processor_count.load(Ordering::SeqCst) as u8 + '0' as u8;
         vga::write_char(4, 4, processors as char);
-        panic!("Test panic");
     }
     else { // Non-main processor
         interrupts::apic::enable_lapic();
+        let (id, _) = interrupts::apic::whoami();
+        let bsp_id = smp::get_smp_info().bsp;
+        log!("I am {}. The main processor is {}\r\n", id, bsp_id);
         loop {};
     }
 }
