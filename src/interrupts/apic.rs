@@ -28,10 +28,18 @@ pub fn enable_lapic() {
     write_lapic_reg(0xF0, 0x1ff);
 }
 
+#[inline]
+pub fn id() -> u8 {
+    (read_lapic_reg(0x20) >> 24) as u8
+}
+
+#[inline]
+pub fn is_bsp() -> bool {
+    (rdmsr(LAPIC_MSR_ID) & LAPIC_BSP_BIT) != 0
+}
+
 pub fn whoami() -> (u8, bool) {
-    let msr = rdmsr(LAPIC_MSR_ID);
-    let id = read_lapic_reg(0x20);
-    ((id >> 24) as u8, (msr & LAPIC_BSP_BIT) != 0)
+    (id(), is_bsp())
 }
 
 pub fn eoi() {

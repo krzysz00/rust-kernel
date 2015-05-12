@@ -20,7 +20,7 @@ extern crate rlibc;
 #[macro_use]
 mod mutex;
 #[macro_use]
-mod notex;
+mod lazy_global;
 
 mod machine;
 #[macro_use]
@@ -81,9 +81,12 @@ pub fn k_main() {
     }
     else { // Non-main processor
         interrupts::apic::enable_lapic();
-        let (id, _) = interrupts::apic::whoami();
-        let bsp_id = smp::get_smp_info().bsp;
+        let id = interrupts::apic::id();
+        let bsp_id = smp::smp_info().bsp;
         log!("I am {}. The main processor is {}\r\n", id, bsp_id);
+
+        let locals = smp::locals_mut();
+        locals.dummy = id as u32;
         loop {};
     }
 }

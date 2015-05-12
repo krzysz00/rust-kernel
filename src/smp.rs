@@ -5,7 +5,7 @@ use collections::Vec;
 
 use interrupts::apic;
 use machine::outb;
-use notex::Notex;
+use lazy_global::LazyGlobal;
 use acpi;
 
 extern {
@@ -25,9 +25,10 @@ pub struct SMPInfo {
     pub bsp: u8,
 }
 
+// FIXME: This could/should be generalized to a generic "shared info" structure
 // I'm satisfied that there are no race conditions (Arc is atomic)
 // and I don't want the overhead
-static SMP_INFO: Notex<Option<Arc<SMPInfo>>> = notex!(None);
+static SMP_INFO: LazyGlobal<Arc<SMPInfo>> = lazy_global!();
 
 fn send_startup_interrupt(address: u32, id: u8) {
     outb(0x70, 0x0F);
@@ -41,11 +42,43 @@ fn send_startup_interrupt(address: u32, id: u8) {
     apic::wait_for_delivery();
 }
 
-pub fn get_smp_info() -> Arc<SMPInfo> {
-    let maybe_info = SMP_INFO.lock();
-    match *maybe_info {
-        Some(ref arc) => arc.clone(),
-        None => panic!("SMP should have been initialized"),
+pub fn smp_info() -> Arc<SMPInfo> {
+    // Arc is thread-safe, so we're fine
+    unsafe { SMP_INFO.get().clone() }
+}
+
+#[derive(Default)]
+pub struct Locals {
+    pub dummy: u32,
+}
+
+// I solemnly swear that each processor only gets its own locals
+static PROCESSOR_LOCALS: LazyGlobal<Vec<Locals>> = lazy_global!();
+
+fn init_locals_vector(num_processors: usize) {
+    unsafe {
+        // Only thread, other people need these
+        PROCESSOR_LOCALS.init(Vec::with_capacity(num_processors));
+    }
+}
+
+fn init_locals(id: u8) {
+    unsafe {
+        // Only processor
+        PROCESSOR_LOCALS.get_mut().insert(id as usize, Default::default());
+    }
+}
+
+pub fn locals() -> &'static Locals {
+    unsafe {
+        // You only get yours
+        &PROCESSOR_LOCALS.get()[apic::id() as usize]
+    }
+}
+
+pub fn locals_mut() -> &'static mut Locals {
+    unsafe {
+        &mut PROCESSOR_LOCALS.get_mut()[apic::id() as usize]
     }
 }
 
@@ -53,20 +86,25 @@ pub fn init() {
     let (self_id, is_bsp) = apic::whoami();
     if is_bsp {
         let processors = acpi::processor_list();
-        {
-            let mut lock = SMP_INFO.lock();
-            *lock = Some(Arc::new(SMPInfo {
+        unsafe {
+            // It's fine, we're the only thread
+            SMP_INFO.init(Arc::new(SMPInfo {
                 processors: processors,
-                bsp: self_id,}));
-        }
-        // We just gave up the vector, so we get a new pointer back
-        let processors = &get_smp_info().processors;
+                bsp: self_id,}))
+        };
 
-        apic::set_ioapic_id(processors.len() as u8);
+        // We just gave up the vector, so we get a new pointer back
+        let processors = &smp_info().processors;
+
+        let num_processors = processors.len();
+        apic::set_ioapic_id(num_processors as u8);
+        init_locals_vector(num_processors);
+
         let startup_address: u32 = smp_init_vector as u32;
         for (number, id) in processors.iter().enumerate() {
             let stack_loc = 0x120_000 + (8192 * number);
             SMP_STACK_PTR.store(stack_loc, Ordering::SeqCst);
+            init_locals(*id);
             if *id != self_id {
                 unsafe {
                     // Trigger the page fault in advance
