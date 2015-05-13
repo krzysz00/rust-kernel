@@ -25,12 +25,12 @@ pub fn init() {
     }
 }
 
-pub fn register_interrupt(number: usize, handler: unsafe extern fn()) {
+pub fn register_interrupt(number: usize, handler: unsafe extern fn(), dpl: u32) {
     let mut idt = IDT_MUTEX.lock();
-    idt[number].set_descriptor(0x08, handler as u32, 0, 0xE);
+    idt[number].set_descriptor(0x08, handler as u32, dpl, 0xE);
 }
 
-pub fn register_trap(number: usize, handler: unsafe extern fn()) {
+pub fn register_trap(number: usize, handler: unsafe extern fn(), dpl: u32) {
     let mut idt = IDT_MUTEX.lock();
-    idt[number].set_descriptor(0x08, handler as u32, 0, 0xF);
+    idt[number].set_descriptor(0x08, handler as u32, dpl, 0xF);
 }

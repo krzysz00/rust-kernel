@@ -27,10 +27,7 @@ pub extern fn double_fault_handler() {
 
 #[no_mangle]
 pub extern fn gpf_handler(code: u32) {
-    const ERROR: &'static str = "General protection fault: ";
-    vga::write_string(15, 0, ERROR);
-    let repr = ((code >> 3) + 0x21) as u8;
-    vga::write_char(15, ERROR.len(), repr as char);
+    log!("General protection fault: code {}\r\n", code);
 }
 
 #[no_mangle]
@@ -55,11 +52,11 @@ pub fn init_idt() {
     pic::remap_pic();
     pic::mask_pic(0xff, 0xff);
 
-    idt::register_interrupt(0x8, double_fault_wrapper);
-    idt::register_trap(0xD, gpf_wrapper);
-    idt::register_trap(0xE, page_fault_wrapper);
-    idt::register_interrupt(0x21, kbd_interrupt_wrapper);
-    idt::register_interrupt(0xFF, spurious_interrupt_handler);
+    idt::register_interrupt(0x8, double_fault_wrapper, 0);
+    idt::register_trap(0xD, gpf_wrapper, 0);
+    idt::register_trap(0xE, page_fault_wrapper, 0);
+    idt::register_interrupt(0x21, kbd_interrupt_wrapper, 0);
+    idt::register_interrupt(0xFF, spurious_interrupt_handler, 0);
 }
 
 // Needs the IO APIC to have an ID

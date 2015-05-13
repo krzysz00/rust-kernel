@@ -28,7 +28,7 @@ mod console;
 
 mod vga;
 mod mmu;
-mod gdt;
+mod tasks;
 mod acpi;
 mod interrupts;
 mod paging;
@@ -53,6 +53,7 @@ pub fn k_main() {
         // YOU MAY NOW PAGE FAULT
         interrupts::init();
         smp::init();
+        tasks::init();
 
         let greet = "Hello from bare-bones Rust";
         console::puts("Hello");
@@ -75,7 +76,6 @@ pub fn k_main() {
         string.push_str("paging");
         vga::write_string(3,5,&string);
         unsafe { *(0xB0_00_00_01 as *mut u32) = 0xcafecafe; }
-        unsafe { *(0xA0_00_10_00 as *mut mmu::Descriptor) = gdt::gdt_get(1); }
         let processors = smp::processor_count.load(Ordering::SeqCst) as u8 + '0' as u8;
         vga::write_char(4, 4, processors as char);
     }
@@ -85,8 +85,7 @@ pub fn k_main() {
         let bsp_id = smp::smp_info().bsp;
         log!("I am {}. The main processor is {}\r\n", id, bsp_id);
 
-        let locals = smp::locals_mut();
-        locals.dummy = id as u32;
+        tasks::init();
         loop {};
     }
 }

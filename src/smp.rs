@@ -1,10 +1,12 @@
 use core::prelude::*;
 use core::atomic::{AtomicUsize, ATOMIC_USIZE_INIT, Ordering};
 use alloc::arc::Arc;
+use alloc::boxed::Box;
 use collections::Vec;
 
 use interrupts::apic;
 use machine::outb;
+use tasks::Tss;
 use lazy_global::LazyGlobal;
 use acpi;
 
@@ -49,7 +51,7 @@ pub fn smp_info() -> Arc<SMPInfo> {
 
 #[derive(Default)]
 pub struct Locals {
-    pub dummy: u32,
+    pub tss: Box<Tss>,
 }
 
 // I solemnly swear that each processor only gets its own locals

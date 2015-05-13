@@ -54,3 +54,11 @@ pub fn invlpg(vaddr: u32) {
         _invlpg(vaddr);
     }
 }
+
+pub fn get_esp() -> u32 {
+    unsafe {
+        let ret: u32;
+        asm!("mov %esp, $0" : "=r"(ret));
+        ret
+    }
+}

@@ -29,38 +29,49 @@ fn mme(v: u32, left_bit: u32, right_bit: u32) -> u32 {
 }
 
 impl Descriptor {
-    pub fn clear(&mut self) {
+    fn clear(&mut self) {
         self.f0 = 0;
         self.f1 = 0;
     }
 
-    pub fn set_p(&mut self, v: u32) {
+    fn set_p(&mut self, v: u32) {
         mms(&mut self.f1, v, 15, 15)
     }
 
-    pub fn get_p(&self) -> u32{
+    fn get_p(&self) -> u32 {
         mme(self.f1, 15, 15)
     }
 
-    pub fn set_dpl(&mut self, v: u32) {
+    fn set_dpl(&mut self, v: u32) {
         mms(&mut self.f1, v, 14, 13)
     }
 
-    pub fn set_s(&mut self, v: u32) {
+    fn set_s(&mut self, v: u32) {
         mms(&mut self.f1, v, 12, 12)
     }
 
-    pub fn set_type(&mut self, v: u32) {
+    fn set_type(&mut self, v: u32) {
         mms(&mut self.f1, v, 11, 8)
     }
 
-    pub fn set_selector(&mut self, v: u32) {
+    fn set_selector(&mut self, v: u32) {
         mms(&mut self.f0, v, 31, 16)
     }
 
-    pub fn set_offset(&mut self, v: u32) {
+    fn set_offset(&mut self, v: u32) {
         mms(&mut self.f0, v, 15, 0);
         mms(&mut self.f1, v >> 16, 19, 16)
+    }
+
+    fn set_base(&mut self, v: u32) {
+        mms(&mut self.f0, v >> 0, 31, 16);
+        mms(&mut self.f1, v >> 16, 7, 0);
+        mms(&mut self.f1, v >> 24, 31, 24);
+    }
+
+    fn set_limit(&mut self, v: u32) {
+        mms(&mut self.f0, v, 15,  0);
+        mms(&mut self.f1, v >> 16, 19, 16);
     }
 
     pub fn set_descriptor(&mut self, selector: u32, offset: u32, dpl: u32, typ: u32) {
@@ -71,5 +82,15 @@ impl Descriptor {
         self.set_dpl(dpl);
         self.set_s(0);
         self.set_type(typ);
+    }
+
+    pub fn set_tss_descriptor(&mut self, base: u32, limit: u32, dpl: u32) {
+        self.clear();
+        self.set_base(base);
+        self.set_limit(limit);
+        self.set_p(1);
+        self.set_dpl(dpl);
+        self.set_s(0);
+        self.set_type(0x9);
     }
 }
