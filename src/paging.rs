@@ -41,6 +41,20 @@ pub fn forget(addr: usize) {
     machine::invlpg(addr as u32)
 }
 
+pub fn give_to_user(addr: usize) {
+    let mut next_frame = NEXT_FRAME_MUTEX.lock();
+    let pd_index = addr >> 22;
+    let page_index = (addr >> 12) & 0x3ff;
+
+    let pd = unsafe {
+        &mut*(0xFFFFF_000 as *mut PageTable)
+    };
+    let pt = page_table_for(addr as u32, &mut *next_frame);
+    pd[page_index] |= 0x5;
+    pt[page_index] |= 0x5;
+    machine::invlpg(addr as u32)
+}
+
 #[allow(unused_assignments)]
 pub fn make_present(addr: usize) {
     let mut next_frame = NEXT_FRAME_MUTEX.lock();

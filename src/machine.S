@@ -36,6 +36,7 @@ _wrmsr:
         wrmsr
         ret
 
+        .globl _invlpg
 _invlpg:
         mov 4(%esp), %eax
         invlpg (%eax)

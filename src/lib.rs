@@ -86,6 +86,7 @@ pub fn k_main() {
         log!("I am {}. The main processor is {}\r\n", id, bsp_id);
 
         tasks::init();
+        paging::give_to_user(machine::get_esp() as usize);
         loop {};
     }
 }
