@@ -8,7 +8,6 @@ use interrupts::apic;
 use machine::outb;
 use tasks::Tss;
 use lazy_global::LazyGlobal;
-use acpi;
 
 extern {
     fn smp_init_vector();
@@ -22,7 +21,7 @@ pub static SMP_STACK_PTR: AtomicUsize = ATOMIC_USIZE_INIT;
 #[no_mangle]
 pub static SMP_CR3: AtomicUsize = ATOMIC_USIZE_INIT;
 
-pub struct SMPInfo {
+pub struct Globals {
     pub processors: Vec<u8>,
     pub bsp: u8,
 }
@@ -30,7 +29,7 @@ pub struct SMPInfo {
 // FIXME: This could/should be generalized to a generic "shared info" structure
 // I'm satisfied that there are no race conditions (Arc is atomic)
 // and I don't want the overhead
-static SMP_INFO: LazyGlobal<Arc<SMPInfo>> = lazy_global!();
+static GLOBALS: LazyGlobal<Arc<Globals>> = lazy_global!();
 
 fn send_startup_interrupt(address: u32, id: u8) {
     outb(0x70, 0x0F);
@@ -44,9 +43,9 @@ fn send_startup_interrupt(address: u32, id: u8) {
     apic::wait_for_delivery();
 }
 
-pub fn smp_info() -> Arc<SMPInfo> {
+pub fn globals() -> Arc<Globals> {
     // Arc is thread-safe, so we're fine
-    unsafe { SMP_INFO.get().clone() }
+    unsafe { GLOBALS.get().clone() }
 }
 
 #[derive(Default)]
@@ -84,19 +83,17 @@ pub fn locals_mut() -> &'static mut Locals {
     }
 }
 
-pub fn init() {
-    let (self_id, is_bsp) = apic::whoami();
-    if is_bsp {
-        let processors = acpi::processor_list();
+pub fn init(info: Arc<Globals>) {
+    if apic::is_bsp() {
         unsafe {
             // It's fine, we're the only thread
-            SMP_INFO.init(Arc::new(SMPInfo {
-                processors: processors,
-                bsp: self_id,}))
+            GLOBALS.init(info)
         };
 
         // We just gave up the vector, so we get a new pointer back
-        let processors = &smp_info().processors;
+        let globals = globals();
+        let processors = &globals.processors;
+        let self_id = globals.bsp;
 
         let num_processors = processors.len();
         apic::set_ioapic_id(num_processors as u8);

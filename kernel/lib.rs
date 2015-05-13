@@ -13,6 +13,7 @@ use core::prelude::*;
 use core::fmt;
 use core::atomic::Ordering;
 use alloc::boxed::Box;
+use alloc::arc::Arc;
 use collections::string::String;
 
 extern crate rlibc;
@@ -54,7 +55,10 @@ pub fn k_main() {
         interrupts::init_idt();
         // YOU MAY NOW PAGE FAULT
         interrupts::init();
-        smp::init();
+        smp::init(Arc::new(smp::Globals {
+            processors: acpi::processor_list(),
+            bsp: interrupts::apic::id(),
+        }));
         tasks::init();
 
         let greet = "Hello from bare-bones Rust";
@@ -85,7 +89,7 @@ pub fn k_main() {
     else { // Non-main processor
         interrupts::apic::enable_lapic();
         let id = interrupts::apic::id();
-        let bsp_id = smp::smp_info().bsp;
+        let bsp_id = smp::globals().bsp;
         log!("I am {}. The main processor is {}\r\n", id, bsp_id);
 
         tasks::init();
