@@ -42,3 +42,39 @@ _invlpg:
         invlpg (%eax)
         ret
 
+        # _to_user_mode(uint32_t entry)
+        # Never returns
+        .globl _to_user_mode
+_to_user_mode:
+        mov $0x23, %eax # USer data segment
+        mov %ax, %ds
+        mov %ax, %es
+        mov %ax, %fs
+        mov %ax, %gs
+
+        mov %esp, %eax
+        mov 4(%esp), %ecx
+        push $0x23 # Stack segment
+        push %eax # Stack pointer
+        pushf
+        push $0x1B # User code segment
+        push %ecx # Handler
+        iret
+
+        # uint32_t _syscall(uint32_t number, uint32_t arg1, uint32_t arg2)
+        .globl _syscall
+_syscall:
+        mov 4(%esp), %eax
+        mov 8(%esp), %ecx
+        mov 12(%esp), %edx
+        push %ebx
+        push %esi
+        push %edi
+        push %ebp
+        int $0x50
+        pop %ebp
+        pop %edi
+        pop %esi
+        pop %ebx
+        ret
+

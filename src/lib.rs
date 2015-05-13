@@ -34,12 +34,14 @@ mod interrupts;
 mod paging;
 mod malloc;
 mod smp;
+mod user_mode;
 
 use vga::Color::*;
 
 pub use interrupts::{idtDesc};
 pub use interrupts::{double_fault_handler, gpf_handler,
-                     page_fault_handler, kbd_interrupt_handler };
+                     page_fault_handler, kbd_interrupt_handler,
+                     write_handler, };
 pub use malloc::{rust_allocate, rust_reallocate, rust_reallocate_inplace,
                  rust_deallocate, rust_usable_size, rust_stats_print };
 pub use smp::{SMP_STACK_PTR, SMP_CR3};
@@ -78,6 +80,7 @@ pub fn k_main() {
         unsafe { *(0xB0_00_00_01 as *mut u32) = 0xcafecafe; }
         let processors = smp::processor_count.load(Ordering::SeqCst) as u8 + '0' as u8;
         vga::write_char(4, 4, processors as char);
+        user_mode::init();
     }
     else { // Non-main processor
         interrupts::apic::enable_lapic();
@@ -86,7 +89,6 @@ pub fn k_main() {
         log!("I am {}. The main processor is {}\r\n", id, bsp_id);
 
         tasks::init();
-        paging::give_to_user(machine::get_esp() as usize);
         loop {};
     }
 }

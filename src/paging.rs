@@ -50,8 +50,8 @@ pub fn give_to_user(addr: usize) {
         &mut*(0xFFFFF_000 as *mut PageTable)
     };
     let pt = page_table_for(addr as u32, &mut *next_frame);
-    pd[page_index] |= 0x5;
-    pt[page_index] |= 0x5;
+    pd[pd_index] |= 0x4;
+    pt[page_index] |= 0x4;
     machine::invlpg(addr as u32)
 }
 
