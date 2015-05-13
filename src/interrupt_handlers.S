@@ -20,6 +20,8 @@
         .extern write_handler
 
         .macro deuser
+        mov %ds, %eax
+        push %eax
         mov $0x10, %eax
         mov %ax, %ds
         mov %ax, %es
@@ -28,7 +30,7 @@
         .endm
 
         .macro reuser
-        mov $0x23, %eax
+        pop %eax
         mov %ax, %ds
         mov %ax, %es
         mov %ax, %fs
@@ -41,13 +43,14 @@ double_fault_wrapper:
         cli
         cld
         call double_fault_handler
+        reuser
         popal
 _loop:      jmp _loop
 
 gpf_wrapper:
         pushal
         deuser
-        mov 32(%esp), %eax
+        mov 36(%esp), %eax
         push %eax
         cld
         call gpf_handler
@@ -61,7 +64,7 @@ page_fault_wrapper:
         pushal
         deuser
         cld
-        mov 32(%esp), %eax
+        mov 36(%esp), %eax
         push %eax
         mov %cr2, %eax
         push %eax
