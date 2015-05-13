@@ -34,6 +34,7 @@ mod acpi;
 mod interrupts;
 mod paging;
 mod malloc;
+mod ide;
 mod smp;
 mod user_mode;
 
@@ -58,6 +59,7 @@ pub fn k_main() {
         smp::init(Arc::new(smp::Globals {
             processors: acpi::processor_list(),
             bsp: interrupts::apic::id(),
+            the_code: ide::slurp_drive(2),
         }));
         tasks::init();
 
@@ -89,9 +91,9 @@ pub fn k_main() {
     else { // Non-main processor
         interrupts::apic::enable_lapic();
         let id = interrupts::apic::id();
-        let bsp_id = smp::globals().bsp;
+        let globals = smp::globals();
+        let bsp_id = globals.bsp;
         log!("I am {}. The main processor is {}\r\n", id, bsp_id);
-
         tasks::init();
         loop {};
     }

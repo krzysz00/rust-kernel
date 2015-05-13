@@ -24,7 +24,7 @@ pub fn inb(port: u16) -> u8 {
 pub fn inl(port: u16) -> u32 {
     unsafe {
         let value: u32;
-        asm!("inb %dx, %eax" : "={eax}"(value) : "{dx}"(port));
+        asm!("inl %dx, %eax" : "={eax}"(value) : "{dx}"(port));
         value
     }
 }

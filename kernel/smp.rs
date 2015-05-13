@@ -24,6 +24,7 @@ pub static SMP_CR3: AtomicUsize = ATOMIC_USIZE_INIT;
 pub struct Globals {
     pub processors: Vec<u8>,
     pub bsp: u8,
+    pub the_code: Option<Vec<u32>>,
 }
 
 // FIXME: This could/should be generalized to a generic "shared info" structure
