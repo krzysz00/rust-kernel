@@ -2,8 +2,10 @@ mod idt;
 mod pic;
 pub mod apic;
 pub mod handlers;
+mod context;
 
 pub use self::idt::{idtDesc};
+pub use self::context::{Context,Contextable};
 
 #[link(name="asmcode", repr="static")]
 extern {

@@ -106,9 +106,7 @@ spurious_interrupt_handler:
     # Args in %ecx, %edx, %ebx, (add more later)
 syscall_handler:
     mov %eax, %esi
-    deuser
-    mov %esp, %eax
-    push %eax
+    save_context
     push %edx
     push %ecx
     cmp $1, %esi
@@ -121,8 +119,6 @@ write:
 exit:
     call exit_handler
 end:
-    add $12, %esp
-    mov %eax, %esi
-    reuser
-    mov %esi, %eax
+    add $8, %esp
+    restore_context # Return codes go in the context
     iret
