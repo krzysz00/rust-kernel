@@ -1,8 +1,9 @@
 use core::prelude::*;
 use machine::{outb, inb, inl};
-use alloc::heap::allocate;
+use malloc::must_allocate;
 use core::slice;
-use collections::vec::Vec;
+use collections::Vec;
+use paging::PAGE_SIZE;
 
 const SECTOR_BYTES: usize = 512;
 const PORTS: [u16; 2] = [0x1f0, 0x170];
@@ -100,7 +101,7 @@ pub fn slurp_drive(drive: u8) -> Option<Vec<u32>> {
         let bytes = (count as usize) * SECTOR_BYTES;
         let longs = bytes >> 2;
         unsafe {
-            let pointer = allocate(bytes, 4096) as *mut u32; // Code should be page-aligned
+            let pointer = must_allocate(bytes, PAGE_SIZE) as *mut u32; // Code should be page-aligned
             read_sectors(drive, 0, slice::from_raw_parts_mut(pointer, longs));
             Vec::from_raw_parts(pointer, longs, longs)
         }

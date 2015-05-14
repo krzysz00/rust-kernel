@@ -194,6 +194,16 @@ pub unsafe fn malloc(size: usize) -> *mut u8 {
     rust_allocate(size, 1)
 }
 
+pub fn must_allocate(size: usize, align: usize) -> *mut u8 {
+    let ptr = unsafe { rust_allocate(size, align) };
+    if !ptr.is_null() {
+        ptr
+    }
+    else {
+        panic!("Out of memory");
+    }
+}
+
 #[inline]
 #[no_mangle]
 pub unsafe extern fn rust_deallocate(ptr: *mut u8,

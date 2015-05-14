@@ -14,7 +14,7 @@ use core::fmt;
 use core::atomic::Ordering;
 use alloc::boxed::Box;
 use alloc::arc::Arc;
-use collections::string::String;
+use collections::String;
 
 extern crate rlibc;
 

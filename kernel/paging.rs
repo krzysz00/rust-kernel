@@ -5,6 +5,7 @@ use smp;
 const PAGE_TABLE_ENTRIES: usize = 1024;
 const PRESENT_RW: u32 = 0b11;
 pub const PAGE_TABLE_SIZE: usize = 4096;
+pub const PAGE_SIZE: usize = 4096;
 pub const KERNEL_CR3: usize = 0x1000;
 
 pub type PageTable = [u32; PAGE_TABLE_ENTRIES];
@@ -25,13 +26,6 @@ fn page_table_for(vaddr: u32, next_frame: &mut u32) -> &'static mut PageTable {
         }
         &mut *((0xFFC00_000 + 0x1_000 * pd_index) as *mut PageTable)
     }
-}
-
-pub fn get_free_frame() -> u32 {
-    let mut next_frame = NEXT_FRAME_MUTEX.lock();
-    let ret = *next_frame;
-    *next_frame += 1;
-    ret
 }
 
 pub fn frame_for(vaddr: usize) -> usize {

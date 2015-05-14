@@ -21,7 +21,7 @@ const MAX_PRIME: u32 = 100;
 #[lang="start"]
 #[no_mangle]
 pub fn main() {
-    console::puts("Searching for primes");
+    console::puts("Searching for primes\r\n");
     for i in 2..MAX_PRIME {
         let mut is_prime = true;
         for j in 2..i {

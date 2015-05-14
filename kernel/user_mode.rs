@@ -1,16 +1,17 @@
 use machine::to_user_mode;
-use paging::{PageTable, frame_for, PAGE_TABLE_SIZE};
+use paging::{PageTable, frame_for, PAGE_TABLE_SIZE, PAGE_SIZE};
 use smp::{locals_mut, globals};
 use interrupts::{Context,Contextable};
 
 use interrupts::apic;
 use tasks;
 use console;
+use malloc::must_allocate;
 
 use core::prelude::*;
 use core::mem::size_of;
-use alloc::heap::allocate;
 use alloc::boxed::Box;
+use collections::Vec;
 
 pub const USER_LOAD_ADDR: usize = 0x400_000;
 
@@ -19,6 +20,7 @@ pub struct Process {
     pub page_tables: Box<[PageTable; 2]>,
     pub code_addr: usize,
     pub code_len: usize,
+    pub zero_pages: Vec<Box<[u8; PAGE_SIZE]>>,
     pub context: Context,
 }
 
@@ -30,7 +32,7 @@ fn create_process(code: &[u32]) -> (usize, usize) {
     let code_addr = &code[0] as *const u32 as usize;
     let code_len = code.len();
     let mut pages = unsafe {
-        Box::from_raw(allocate(size_of::<[PageTable; 2]>(), 4096) as *mut [PageTable; 2])
+        Box::from_raw(must_allocate(size_of::<[PageTable; 2]>(), 4096) as *mut [PageTable; 2])
     };
     let system_pd = 0xFF_FF_F000 as *const u32;
     pages[0][0] = unsafe { *(system_pd) };
@@ -45,6 +47,7 @@ fn create_process(code: &[u32]) -> (usize, usize) {
     let cr3 = frame_for(&pages[0] as *const PageTable as usize);
     let process = Process { id: id as u32, page_tables: pages,
                             code_addr: code_addr, code_len: code_len,
+                            zero_pages: Vec::new(),
                             context: Context::new(USER_LOAD_ADDR, limit, cr3) };
     processes.push_back(process);
     (limit, cr3)
