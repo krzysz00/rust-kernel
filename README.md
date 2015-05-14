@@ -13,3 +13,6 @@ To use unstable features, you need a nightly build of the compiler.
 Since tracking the nightly branch might be a bad idea, you can use `rustup.sh --channel=nightly --date=[date-of-relevant-stable-release]` to get as close to the stable build as possible.
 When you do that, make sure to check out the corresponding source code.
 (`rustup.sh`, which is Rust's installer script, also takes a `--prefix` option)
+
+The kernel should be the first hard drive (hda).
+The user program should be provided as the second hard drive (hdb).

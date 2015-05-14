@@ -59,7 +59,7 @@ pub fn k_main() {
         smp::init(Arc::new(smp::Globals {
             processors: acpi::processor_list(),
             bsp: interrupts::apic::id(),
-            the_code: ide::slurp_drive(0),
+            the_code: ide::slurp_drive(1),
         }));
         tasks::init();
 
