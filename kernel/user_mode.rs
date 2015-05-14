@@ -57,6 +57,15 @@ pub fn get_current_process_mut<'r>() -> &'r mut Process {
     locals_mut().processes.front_mut().unwrap()
 }
 
+pub fn switch_tasks<T: Contextable>(ctx: &mut T) {
+    let ref mut processes = locals_mut().processes;
+    let mut current_process = processes.pop_front().unwrap();
+    ctx.save(&mut current_process.context);
+    processes.push_back(current_process);
+    let new_process = processes.front().unwrap();
+    ctx.load(&new_process.context);
+}
+
 pub fn kill_current_process<T: Contextable>(ctx: &mut T) {
     let ref mut processes = locals_mut().processes;
     let mut current_process = processes.pop_front().unwrap();

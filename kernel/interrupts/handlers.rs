@@ -68,6 +68,12 @@ pub extern fn write_handler(head: *const u8, len: u32, ctx: &mut RawContext) {
 }
 
 #[no_mangle]
+pub extern fn sleep_handler(_a: u32, _b: u32, ctx: &mut RawContext) {
+    ctx.kernel_paging();
+    user_mode::switch_tasks(ctx);
+}
+
+#[no_mangle]
 pub extern fn exit_handler(code: u32, _unused: u32, ctx: &mut RawContext) {
     ctx.kernel_paging();
     log!("Process exited with code {}\r\n", code);

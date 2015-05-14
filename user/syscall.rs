@@ -16,7 +16,11 @@ pub fn write(bytes: &[u8]) -> bool {
     ret == 0
 }
 
-pub fn exit() -> ! {
-    syscall(9, 1, 0);
+pub fn sleep() {
+    syscall(8, 0, 0);
+}
+
+pub fn exit(code: u32) -> ! {
+    syscall(9, code, 0);
     loop {};
 }

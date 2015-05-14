@@ -20,6 +20,7 @@
 
     .globl syscall_handler
     .extern write_handler
+    .extern sleep_handler
     .extern exit_handler
 
     .macro deuser
@@ -119,11 +120,16 @@ syscall_handler:
     push %ecx
     cmp $1, %esi
     je write
+    cmp $8, %esi
+    je sleep
     cmp $9, %esi
     je exit
     jmp end
 write:
     call write_handler
+    jmp end
+sleep:
+    call sleep_handler
     jmp end
 exit:
     call exit_handler

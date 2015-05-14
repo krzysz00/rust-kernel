@@ -43,7 +43,7 @@ use vga::Color::*;
 pub use interrupts::{idtDesc};
 pub use interrupts::handlers::{double_fault_handler, gpf_handler,
                                page_fault_handler, kbd_interrupt_handler,
-                               write_handler, exit_handler };
+                               write_handler, sleep_handler, exit_handler };
 pub use malloc::{rust_allocate, rust_reallocate, rust_reallocate_inplace,
                  rust_deallocate, rust_usable_size, rust_stats_print };
 pub use smp::{SMP_STACK_PTR, SMP_CR3};

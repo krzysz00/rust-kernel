@@ -33,6 +33,9 @@ pub fn main() {
         if is_prime {
             print!("{} is prime\r\n", i);
         }
+        if i % 10 == 0 {
+            syscall::sleep();
+        }
     }
 }
 
@@ -45,5 +48,5 @@ pub extern fn rust_begin_unwind(args: fmt::Arguments,
     use core::fmt::Write;
     print!("\r\nPanic at {}:{}: ", file, line);
     let _ = console::Console.write_fmt(args);
-    syscall::exit();
+    syscall::exit(1);
 }
