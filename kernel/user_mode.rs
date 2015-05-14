@@ -1,16 +1,60 @@
-use vga;
-use machine::{to_user_mode, get_esp};
-use paging::give_to_user;
+use machine::to_user_mode;
+use paging::{PageTable, frame_for, get_free_frame, PAGE_TABLE_SIZE};
+use smp::{locals_mut, globals};
+use interrupts::Context;
+use tasks::Tss;
 
-pub extern fn user_main() {
-    vga::write_string(0, 0, "User mode");
-    loop {}
+use core::prelude::*;
+use core::mem::size_of;
+use alloc::heap::allocate;
+use alloc::boxed::Box;
+
+pub const USER_LOAD_ADDR: usize = 0x200_000;
+
+pub struct Process {
+    id: u32,
+    page_tables: Box<[PageTable; 2]>,
+    code_addr: usize,
+    context: Context,
+}
+
+fn create_process(code: &[u32]) -> (usize, usize) {
+    let locals = locals_mut();
+    let ref mut processes = locals.processes;
+    let id = processes.len() + 1;
+
+    let mut pages = unsafe {
+        Box::from_raw(allocate(size_of::<[PageTable; 2]>(), 4096) as *mut [PageTable; 2])
+    };
+    let system_pd = 0xFF_FF_F000 as *const u32;
+    pages[0][0] = unsafe { *(system_pd) };
+    let tss_pd = &*locals.tss as *const Tss as usize >> 22;
+    pages[0][tss_pd] = unsafe { *(system_pd.offset(tss_pd as isize)) };
+
+    let mut limit = USER_LOAD_ADDR + code.len() * 4 + 2 * PAGE_TABLE_SIZE; // 2 pages away from end of code
+    limit += PAGE_TABLE_SIZE - (limit % PAGE_TABLE_SIZE);
+    pages[1][(limit >> 12) - 1] = get_free_frame() | 0x7;
+
+    pages[0][1] = frame_for(&pages[1] as *const PageTable as usize) as u32 | 0x07; // User, RW, Present
+
+    let code_addr = &code[0] as *const u32 as usize;
+    let cr3 = frame_for(&pages[0] as *const PageTable as usize);
+    let process = Process { id: id as u32, page_tables: pages,
+                            code_addr: code_addr,
+                            context: Default::default() };
+    processes.push_back(process);
+    (limit, cr3)
 }
 
 pub fn init() -> ! {
-    give_to_user(get_esp() as usize);
-    for page in 0x8..0xe0 {
-        give_to_user(page << 12);
+    match globals().the_code.as_ref() {
+        Some(code) => {
+            let (esp, cr3) = create_process(&code[..]);
+            to_user_mode(USER_LOAD_ADDR, esp, cr3);
+        }
+        None => {
+            log!("\r\nNo user mode (maybe no disk)\r\n");
+            loop {}
+        }
     }
-    to_user_mode(user_main)
 }

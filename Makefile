@@ -16,6 +16,7 @@ user: deps
 
 clean:
 	${MAKE} -C kernel clean
+	${MAKE} -C user clean
 
 clean-all: clean
 	${MAKE} -C deps clean

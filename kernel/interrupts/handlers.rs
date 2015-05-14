@@ -28,17 +28,16 @@ pub extern fn page_fault_handler(address: u32, error: u32, _ctx: &mut RawErrCont
 }
 
 #[no_mangle]
-pub extern fn kbd_interrupt_handler(ctx: &mut RawContext) {
-    let byte = inb(0x60);
+pub extern fn kbd_interrupt_handler(_ctx: &mut RawContext) {
+    let _byte = inb(0x60);
     vga::write_string_with_color(4, 30, "Interrupts on!", Pink, Black);
     apic::eoi();
 }
 
 #[no_mangle]
-pub extern fn write_handler(head: *const u8, len: u32, _ctx: &mut RawContext) -> u32 {
+pub extern fn write_handler(head: *const u8, len: u32, _ctx: &mut RawContext) {
     let bytes = unsafe { slice::from_raw_parts(head, len as usize) };
     Console.write_bytes(bytes);
-    0
 }
 
 #[no_mangle]

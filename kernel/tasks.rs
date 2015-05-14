@@ -28,13 +28,13 @@ static GDT_MUTEX: Mutex<()> = mutex!(());
 pub struct Tss {
     _prev: u32,
     esp0: u32,
-    ss0: u32,
+    _ss0: u32,
     _unused: [u32; 23],
 }
 
 impl Default for Tss {
     fn default() -> Tss {
-        Tss { _prev: 0, esp0: 0, ss0: 0x10, _unused: [0; 23] }
+        Tss { _prev: 0, esp0: 0, _ss0: 0x10, _unused: [0; 23] }
     }
 }
 
@@ -51,8 +51,8 @@ pub fn init() -> bool {
     if index >= GDT_COUNT { return false };
 
     let ref mut tss = *locals_mut().tss;
-    // At most 1024 integers on the esp0 stack
-    let esp0 = get_esp() - 0x1000;
+    // Room for 50 more ints before esp0 starts
+    let esp0 = get_esp() - 0x200;
     tss.set_esp0(esp0);
 
     let _lock = GDT_MUTEX.lock();

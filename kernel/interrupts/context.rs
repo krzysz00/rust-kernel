@@ -33,6 +33,7 @@ pub struct RawErrContext {
     esp: u32,
 }
 
+#[derive(Default)]
 pub struct Context {
     cr3: u32,
     edi: u32,

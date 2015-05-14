@@ -4,8 +4,9 @@ use smp;
 
 const PAGE_TABLE_ENTRIES: usize = 1024;
 const PRESENT_RW: u32 = 0b11;
+pub const PAGE_TABLE_SIZE: usize = 4096;
 
-type PageTable = [u32; PAGE_TABLE_ENTRIES];
+pub type PageTable = [u32; PAGE_TABLE_ENTRIES];
 
 // Overallocate. We'll loop through it to get a page-aligned piece of memory
 // static INITIAL_TABLE_NOTEX: Notex<[u32; PAGE_TABLE_ENTRIES * 3]> = notex!([0; PAGE_TABLE_ENTRIES * 3]);
@@ -23,6 +24,22 @@ fn page_table_for(vaddr: u32, next_frame: &mut u32) -> &'static mut PageTable {
         }
         &mut *((0xFFC00_000 + 0x1_000 * pd_index) as *mut PageTable)
     }
+}
+
+pub fn get_free_frame() -> u32 {
+    let mut next_frame = NEXT_FRAME_MUTEX.lock();
+    let ret = *next_frame;
+    *next_frame += 1;
+    ret
+}
+
+pub fn frame_for(vaddr: usize) -> usize {
+    let mut next_frame = NEXT_FRAME_MUTEX.lock();
+    let page_index = (vaddr >> 12) & 0x3ff;
+    let pt = page_table_for(vaddr as u32, &mut *next_frame);
+    let ret = (pt[page_index] & !0xfff) as usize;
+    log!("Frame for 0x{:x} is 0x{:x}\r\n", vaddr, ret);
+    ret
 }
 
 pub fn identity_map(addr: usize) {

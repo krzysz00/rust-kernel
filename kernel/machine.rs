@@ -8,7 +8,7 @@ extern {
 
     fn _invlpg(addr: u32);
 
-    fn _to_user_mode(entry: u32) -> !;
+    fn _to_user_mode(entry: u32, esp: u32, cr3: u32) -> !;
 }
 
 pub fn inb(port: u16) -> u8 {
@@ -65,8 +65,8 @@ pub fn get_esp() -> u32 {
     }
 }
 
-pub fn to_user_mode(handler: extern fn()) -> ! {
+pub fn to_user_mode(handler: usize, esp: usize, cr3: usize) -> ! {
     unsafe {
-        _to_user_mode(handler as u32)
+        _to_user_mode(handler as u32, esp as u32, cr3 as u32)
     }
 }

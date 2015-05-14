@@ -42,7 +42,7 @@ _invlpg:
     invlpg (%eax)
     ret
 
-    # _to_user_mode(uint32_t entry)
+    # _to_user_mode(uint32_t entry, uint32_t sp, uint32_t cr3)
     # Never returns
     .globl _to_user_mode
 _to_user_mode:
@@ -52,11 +52,13 @@ _to_user_mode:
     mov %ax, %fs
     mov %ax, %gs
 
-    mov %esp, %eax
-    mov 4(%esp), %ecx
+    mov 4(%esp), %eax
+    mov 8(%esp), %ecx
+    mov 12(%esp), %edx
+    mov %edx, %cr3
     push $0x23 # Stack segment
-    push %eax # Stack pointer
+    push %ecx # Stack pointer
     pushf
     push $0x1B # User code segment
-    push %ecx # Handler
+    push %eax # Handler
     iret
