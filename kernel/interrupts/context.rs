@@ -33,7 +33,6 @@ pub struct RawErrContext {
     esp: u32,
 }
 
-#[derive(Default)]
 pub struct Context {
     cr3: u32,
     edi: u32,
@@ -62,6 +61,18 @@ impl RawContext {
     pub fn kernel_paging(&self) {
         unsafe {
             asm!("mov %eax, %cr3" ::"{eax}"(::paging::KERNEL_CR3));
+        }
+    }
+}
+
+impl Context {
+    pub fn new(eip: usize, esp: usize, cr3: usize) -> Context {
+        Context {
+            cr3: cr3 as u32,
+            edi: 0, esi: 0, ebp: 0, ebx: 0,
+            edx: 0, ecx: 0, eax: 0,
+            eip: eip as u32, eflags: 0x202, // IF and the always-1 bit
+            esp: esp as u32,
         }
     }
 }

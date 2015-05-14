@@ -2,7 +2,7 @@ use machine::{inb};
 use paging;
 use vga;
 use super::apic;
-use super::context::{RawContext, RawErrContext, Context, Contextable};
+use super::context::{RawContext, RawErrContext};
 use console::Console;
 use user_mode;
 
@@ -63,5 +63,5 @@ pub extern fn write_handler(head: *const u8, len: u32, ctx: &mut RawContext) {
 pub extern fn exit_handler(code: u32, _unused: u32, ctx: &mut RawContext) {
     ctx.kernel_paging();
     log!("Process exited with code {}\r\n", code);
-    loop {}
+    user_mode::kill_current_process(ctx);
 }

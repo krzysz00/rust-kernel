@@ -1,8 +1,10 @@
 use machine::to_user_mode;
 use paging::{PageTable, frame_for, PAGE_TABLE_SIZE};
 use smp::{locals_mut, globals};
-use interrupts::Context;
-use tasks::Tss;
+use interrupts::{Context,Contextable};
+
+use interrupts::apic;
+use tasks;
 use console;
 
 use core::prelude::*;
@@ -32,7 +34,7 @@ fn create_process(code: &[u32]) -> (usize, usize) {
     };
     let system_pd = 0xFF_FF_F000 as *const u32;
     pages[0][0] = unsafe { *(system_pd) };
-    let tss_pd = &*locals.tss as *const Tss as usize >> 22;
+    let tss_pd = &*locals.tss as *const tasks::Tss as usize >> 22;
     pages[0][tss_pd] = unsafe { *(system_pd.offset(tss_pd as isize)) };
 
     let mut limit = USER_LOAD_ADDR + code.len() * 4 + 32 * PAGE_TABLE_SIZE; // 32 pages away from end of code
@@ -43,7 +45,7 @@ fn create_process(code: &[u32]) -> (usize, usize) {
     let cr3 = frame_for(&pages[0] as *const PageTable as usize);
     let process = Process { id: id as u32, page_tables: pages,
                             code_addr: code_addr, code_len: code_len,
-                            context: Default::default() };
+                            context: Context::new(USER_LOAD_ADDR, limit, cr3) };
     processes.push_back(process);
     (limit, cr3)
 }
@@ -52,10 +54,24 @@ pub fn get_current_process_mut<'r>() -> &'r mut Process {
     locals_mut().processes.front_mut().unwrap()
 }
 
+pub fn kill_current_process<T: Contextable>(ctx: &mut T) {
+    let ref mut processes = locals_mut().processes;
+    let mut current_process = processes.pop_front().unwrap();
+    ctx.save(&mut current_process.context);
+    drop(current_process);
+    match processes.front_mut() {
+        Some(p) => ctx.load(&p.context),
+        None => {
+            log!("No more processes on CPU {}\r\n", apic::id());
+            loop {}
+        }
+    }
+}
 pub fn init() -> ! {
     match globals().the_code.as_ref() {
         Some(code) => {
             let (esp, cr3) = create_process(&code[..]);
+            create_process(&code[..]);
             to_user_mode(USER_LOAD_ADDR, esp, cr3);
         }
         None => {
