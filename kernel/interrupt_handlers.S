@@ -2,6 +2,8 @@
  * This is where the magic assembly wrappers around interrupt handlers go
  */
 
+#define KERNEL_CR3 0x1000
+
     .globl double_fault_wrapper
     .extern double_fault_handler
 
@@ -28,9 +30,15 @@
     mov %ax, %es
     mov %ax, %fs
     mov %ax, %gs
+    mov %cr3, %eax
+    push %eax
+    mov $KERNEL_CR3, %eax
+    mov %eax, %cr3
     .endm
 
     .macro reuser
+    pop %eax
+    mov %eax, %cr3
     pop %eax
     mov %ax, %ds
     mov %ax, %es
@@ -38,51 +46,56 @@
     mov %ax, %gs
     .endm
 
-double_fault_wrapper:
+    .macro save_context
     pushal
     deuser
+    mov %esp, %eax
+    push %eax
+    .endm
+
+    .macro restore_context
+    add $4, %esp
+    reuser
+    popal
+    .endm
+
+double_fault_wrapper:
+    save_context
     cli
     cld
     call double_fault_handler
-    reuser
-    popal
+    restore_context
 _loop:      jmp _loop
 
 gpf_wrapper:
-    pushal
-    deuser
-    mov 36(%esp), %eax
+    save_context
+    mov 44(%esp), %eax
     push %eax
     cld
     call gpf_handler
     add $4, %esp
-    reuser
-    popal
+    restore_context
     add $4, %esp
     iret
 
 page_fault_wrapper:
-    pushal
-    deuser
+    save_context
     cld
-    mov 36(%esp), %eax
+    mov 44(%esp), %eax
     push %eax
     mov %cr2, %eax
     push %eax
     call page_fault_handler
     add $8, %esp
-    reuser
-    popal
+    restore_context
     add $4, %esp
     iret
 
 kbd_interrupt_wrapper:
-    pushal
-    deuser
+    save_context
     cld
     call kbd_interrupt_handler
-    reuser
-    popal
+    restore_context
     iret
 
 spurious_interrupt_handler:
@@ -94,6 +107,8 @@ spurious_interrupt_handler:
 syscall_handler:
     mov %eax, %esi
     deuser
+    mov %esp, %eax
+    push %eax
     push %edx
     push %ecx
     cmp $1, %esi
@@ -106,7 +121,7 @@ write:
 exit:
     call exit_handler
 end:
-    add $8, %esp
+    add $12, %esp
     mov %eax, %esi
     reuser
     mov %esi, %eax
