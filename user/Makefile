@@ -1,5 +1,6 @@
 .PHONY: all clean
 DEPDIR = ../deps
+default: all
 -include ../common.mak
 
 all: user.img

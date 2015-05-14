@@ -1,3 +1,5 @@
+use paging::KERNEL_CR3;
+
 pub struct RawContext {
     cr3: u32,
     _ds: u32,
@@ -13,6 +15,7 @@ pub struct RawContext {
     _cs: u32,
     eflags: u32,
     esp: u32,
+    ss: u32,
 }
 
 pub struct RawErrContext {
@@ -31,6 +34,7 @@ pub struct RawErrContext {
     _cs: u32,
     eflags: u32,
     esp: u32,
+    _ss: u32
 }
 
 pub struct Context {
@@ -52,6 +56,10 @@ impl RawContext {
         self.eax = code;
     }
 
+    pub fn was_kernel(&self) -> bool {
+        self.ss != 0x23
+    }
+
     pub fn user_paging(&self) {
         unsafe {
             asm!("mov %eax, %cr3" :: "{eax}"(self.cr3));
@@ -60,7 +68,7 @@ impl RawContext {
 
     pub fn kernel_paging(&self) {
         unsafe {
-            asm!("mov %eax, %cr3" ::"{eax}"(::paging::KERNEL_CR3));
+            asm!("mov %eax, %cr3" ::"{eax}"(KERNEL_CR3));
         }
     }
 }

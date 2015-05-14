@@ -61,7 +61,6 @@ pub fn switch_tasks<T: Contextable>(ctx: &mut T) {
     let ref mut processes = locals_mut().processes;
     let mut current_process = processes.pop_front().unwrap();
     ctx.save(&mut current_process.context);
-    // log!("Sleeping process {} on CPU {}\r\n", current_process.id, apic::id());
     processes.push_back(current_process);
     let new_process = processes.front().unwrap();
     ctx.load(&new_process.context);

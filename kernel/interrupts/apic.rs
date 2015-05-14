@@ -99,5 +99,6 @@ pub fn init() {
     let (lapic_id, is_bsp) = whoami();
     if is_bsp {
         direct_irq(0x1, 0x21, lapic_id as u32);
+        direct_irq(0x2, 0x22, lapic_id as u32);
     }
 }

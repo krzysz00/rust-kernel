@@ -1,12 +1,16 @@
 use machine;
+use mutex::Mutex;
 use core::fmt::{Write,Error};
 use core::result::Result;
 
 const PORT: u16 = 0x3F8;
 pub struct Console;
 
+static CONSOLE_LOCK: Mutex<()> = mutex!(());
+
 impl Console {
     pub fn write_bytes(&self, bytes: &[u8]) {
+        let _lock = CONSOLE_LOCK.lock();
         for b in bytes {
             while machine::inb(PORT + 5) & 0x20 == 0 {};
             machine::outb(PORT, *b);

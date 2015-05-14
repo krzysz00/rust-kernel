@@ -42,7 +42,8 @@ use vga::Color::*;
 
 pub use interrupts::{idtDesc};
 pub use interrupts::handlers::{double_fault_handler, gpf_handler,
-                               page_fault_handler, kbd_interrupt_handler,
+                               page_fault_handler, broadcast_timer_handler,
+                               timer_handler, kbd_interrupt_handler,
                                write_handler, sleep_handler, exit_handler };
 pub use malloc::{rust_allocate, rust_reallocate, rust_reallocate_inplace,
                  rust_deallocate, rust_usable_size, rust_stats_print };
@@ -95,7 +96,6 @@ pub fn k_main() {
         let bsp_id = globals.bsp;
         log!("I am {}. The main processor is {}\r\n", id, bsp_id);
         if tasks::init() {
-            log!("User mode!\r\n");
             user_mode::init();
         }
     }

@@ -16,7 +16,7 @@ mod syscall;
 #[macro_use]
 mod console;
 
-const MAX_PRIME: u32 = 100;
+const MAX_PRIME: u32 = 10000;
 
 #[lang="start"]
 #[no_mangle]
@@ -33,9 +33,9 @@ pub fn main() {
         if is_prime {
             print!("{} is prime\r\n", i);
         }
-        if i % 10 == 0 {
-            syscall::sleep();
-        }
+        // if i % 100 == 0 {
+        //     syscall::sleep();
+        // }
     }
 }
 

@@ -13,6 +13,12 @@
     .globl page_fault_wrapper
     .extern page_fault_handler
 
+    .globl broadcast_timer_wrapper
+    .extern broadcast_timer_handler
+
+    .globl timer_wrapper
+    .extern timer_handler
+
     .globl kbd_interrupt_wrapper
     .extern kbd_interrupt_handler
 
@@ -94,6 +100,20 @@ page_fault_wrapper:
     add $8, %esp
     restore_context
     add $4, %esp
+    iret
+
+broadcast_timer_wrapper:
+    save_context
+    cld
+    call broadcast_timer_handler
+    restore_context
+    iret
+
+timer_wrapper:
+    save_context
+    cld
+    call timer_handler
+    restore_context
     iret
 
 kbd_interrupt_wrapper:

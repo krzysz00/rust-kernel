@@ -54,6 +54,21 @@ pub extern fn page_fault_handler(address: u32, error: u32, _ctx: &mut RawErrCont
 }
 
 #[no_mangle]
+pub extern fn broadcast_timer_handler(ctx: &mut RawContext) {
+    if !ctx.was_kernel() {
+        user_mode::switch_tasks(ctx);
+    }
+    apic::eoi();
+}
+
+#[no_mangle]
+pub extern fn timer_handler(ctx: &mut RawContext) {
+    // Broadcast the real timer interrupt
+    apic::send_interrupt(0xff, 0x49 | 3 << 18);
+    broadcast_timer_handler(ctx);
+}
+
+#[no_mangle]
 pub extern fn kbd_interrupt_handler(_ctx: &mut RawContext) {
     let _byte = inb(0x60);
     vga::write_string_with_color(4, 30, "Interrupts on!", Pink, Black);
