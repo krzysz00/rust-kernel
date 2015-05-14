@@ -52,6 +52,18 @@ impl RawContext {
     pub fn set_return_code(&mut self, code: u32) {
         self.eax = code;
     }
+
+    pub fn user_paging(&self) {
+        unsafe {
+            asm!("mov %eax, %cr3" :: "{eax}"(self.cr3));
+        }
+    }
+
+    pub fn kernel_paging(&self) {
+        unsafe {
+            asm!("mov %eax, %cr3" ::"{eax}"(::paging::KERNEL_CR3));
+        }
+    }
 }
 
 pub trait Contextable {

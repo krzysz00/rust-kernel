@@ -69,8 +69,8 @@ pub fn write_char_with_color(row: usize, col: usize, letter: char,
 }
 
 pub fn write_string(row: usize, col: usize, string: &str) {
-    for (i, chr) in string.chars().enumerate() {
-        write_char(row, col + i, chr);
+    for (i, chr) in string.bytes().enumerate() {
+        write_char(row, col + i, chr as char);
     }
 }
 
@@ -83,8 +83,8 @@ pub fn paint_color(row: usize, col: usize, len: usize,
 
 pub fn write_string_with_color(row: usize, col: usize, string: &str,
                                foregnd: Color, backgnd: Color) {
-    for (i, chr) in string.chars().enumerate() {
-        write_char_with_color(row, col + i, chr, foregnd, backgnd);
+    for (i, chr) in string.bytes().enumerate() {
+        write_char_with_color(row, col + i, chr as char, foregnd, backgnd);
     }
 }
 

@@ -5,6 +5,7 @@ use smp;
 const PAGE_TABLE_ENTRIES: usize = 1024;
 const PRESENT_RW: u32 = 0b11;
 pub const PAGE_TABLE_SIZE: usize = 4096;
+pub const KERNEL_CR3: usize = 0x1000;
 
 pub type PageTable = [u32; PAGE_TABLE_ENTRIES];
 
@@ -38,7 +39,6 @@ pub fn frame_for(vaddr: usize) -> usize {
     let page_index = (vaddr >> 12) & 0x3ff;
     let pt = page_table_for(vaddr as u32, &mut *next_frame);
     let ret = (pt[page_index] & !0xfff) as usize;
-    log!("Frame for 0x{:x} is 0x{:x}\r\n", vaddr, ret);
     ret
 }
 
@@ -58,20 +58,6 @@ pub fn forget(addr: usize) {
     machine::invlpg(addr as u32)
 }
 
-pub fn give_to_user(addr: usize) {
-    let mut next_frame = NEXT_FRAME_MUTEX.lock();
-    let pd_index = addr >> 22;
-    let page_index = (addr >> 12) & 0x3ff;
-
-    let pd = unsafe {
-        &mut*(0xFFFFF_000 as *mut PageTable)
-    };
-    let pt = page_table_for(addr as u32, &mut *next_frame);
-    pd[pd_index] |= 0x4;
-    pt[page_index] |= 0x4;
-    machine::invlpg(addr as u32)
-}
-
 #[allow(unused_assignments)]
 pub fn make_present(addr: usize) {
     let mut next_frame = NEXT_FRAME_MUTEX.lock();
@@ -83,7 +69,7 @@ pub fn make_present(addr: usize) {
 
 pub fn init() {
     unsafe {
-        let alligned_pd_addr = 0x1000;
+        let alligned_pd_addr = KERNEL_CR3;
         let pd = alligned_pd_addr as *mut PageTable;
 
         let first_pt: *mut PageTable = pd.offset(1);

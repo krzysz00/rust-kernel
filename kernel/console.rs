@@ -15,6 +15,7 @@ impl Console {
 }
 
 impl Write for Console {
+    #[inline]
     fn write_str(&mut self, data: &str) -> Result<(), Error> {
         self.write_bytes(data.as_bytes());
         Result::Ok(())

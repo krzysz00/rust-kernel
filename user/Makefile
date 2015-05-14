@@ -5,7 +5,7 @@ DEPDIR = ../deps
 all: user.img
 
 user: ${BOOTFILES} ${AFILES}
-	${LD} --gc-sections -N -m elf_i386 -e start -Ttext=0x20000 -o user ${BOOTFILES} --start-group ${AFILES} --end-group
+	${LD} --gc-sections -N -m elf_i386 -e start -Ttext=0x400000 -o user ${BOOTFILES} --start-group ${AFILES} --end-group
 
 clean::
 	rm -f user

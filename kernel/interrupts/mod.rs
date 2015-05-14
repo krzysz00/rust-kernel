@@ -28,7 +28,7 @@ pub fn init_idt() {
     idt::register_trap(0xD, gpf_wrapper, 0);
     idt::register_trap(0xE, page_fault_wrapper, 0);
     idt::register_interrupt(0x21, kbd_interrupt_wrapper, 0);
-    idt::register_interrupt(0x50, syscall_handler, 3);
+    idt::register_trap(0x50, syscall_handler, 3);
     idt::register_interrupt(0xFF, spurious_interrupt_handler, 0);
 }
 

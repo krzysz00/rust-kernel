@@ -4,6 +4,7 @@ use vga;
 use super::apic;
 use super::context::{RawContext, RawErrContext, Context, Contextable};
 use console::Console;
+use user_mode;
 
 use core::slice;
 use vga::Color::*;
@@ -24,7 +25,24 @@ pub extern fn page_fault_handler(address: u32, error: u32, _ctx: &mut RawErrCont
         log!("Unusual page fault: code 0x{:x}, address: 0x{:x}\r\n", error, address);
         loop {};
     }
-    paging::make_present(address as usize);
+    let address = address as usize;
+    if (error & 0x4) != 0 { // User code needs mapping
+        let process = user_mode::get_current_process_mut();
+        let maybe_code_offset = address - user_mode::USER_LOAD_ADDR;
+        let page = maybe_code_offset >> 12;
+        let code_pages = (process.code_len >> 10) + if process.code_len % 1024 == 0 { 0 } else { 1 };
+        if page > code_pages {
+            let frame = paging::get_free_frame();
+            process.page_tables[1][page] = frame | 0x07; // BSS/stack
+        }
+        else {
+            let frame = paging::frame_for(process.code_addr + maybe_code_offset) as u32;
+            process.page_tables[1][page] = frame | 0x07;
+        }
+    }
+    else {
+        paging::make_present(address);
+    }
 }
 
 #[no_mangle]
@@ -35,13 +53,15 @@ pub extern fn kbd_interrupt_handler(_ctx: &mut RawContext) {
 }
 
 #[no_mangle]
-pub extern fn write_handler(head: *const u8, len: u32, _ctx: &mut RawContext) {
+pub extern fn write_handler(head: *const u8, len: u32, ctx: &mut RawContext) {
     let bytes = unsafe { slice::from_raw_parts(head, len as usize) };
     Console.write_bytes(bytes);
+    ctx.set_return_code(0);
 }
 
 #[no_mangle]
-pub extern fn exit_handler(code: u32, _unused: u32, _ctx: &mut RawContext) {
+pub extern fn exit_handler(code: u32, _unused: u32, ctx: &mut RawContext) {
+    ctx.kernel_paging();
     log!("Process exited with code {}\r\n", code);
     loop {}
 }

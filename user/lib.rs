@@ -16,7 +16,7 @@ mod syscall;
 #[macro_use]
 mod console;
 
-const MAX_PRIME: u32 = 1_000_000;
+const MAX_PRIME: u32 = 100;
 
 #[lang="start"]
 #[no_mangle]

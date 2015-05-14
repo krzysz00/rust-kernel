@@ -32,6 +32,9 @@
     mov %ax, %gs
     mov %cr3, %eax
     push %eax
+    .endm
+
+    .macro kernel_paging
     mov $KERNEL_CR3, %eax
     mov %eax, %cr3
     .endm
@@ -49,6 +52,7 @@
     .macro save_context
     pushal
     deuser
+    kernel_paging
     mov %esp, %eax
     push %eax
     .endm
@@ -106,7 +110,11 @@ spurious_interrupt_handler:
     # Args in %ecx, %edx, %ebx, (add more later)
 syscall_handler:
     mov %eax, %esi
-    save_context
+    pushal
+    deuser
+    mov %esp, %eax
+    push %eax
+
     push %edx
     push %ecx
     cmp $1, %esi
@@ -116,8 +124,10 @@ syscall_handler:
     jmp end
 write:
     call write_handler
+    jmp end
 exit:
     call exit_handler
+    jmp end
 end:
     add $8, %esp
     restore_context # Return codes go in the context
