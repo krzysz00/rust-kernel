@@ -95,7 +95,7 @@ pub fn k_main() {
         let bsp_id = globals.bsp;
         log!("I am {}. The main processor is {}\r\n", id, bsp_id);
         tasks::init();
-        loop {};
+        user_mode::init();
     }
 }
 

@@ -28,7 +28,6 @@ pub struct Globals {
     pub the_code: Option<Vec<u32>>,
 }
 
-// FIXME: This could/should be generalized to a generic "shared info" structure
 // I'm satisfied that there are no race conditions (Arc is atomic)
 // and I don't want the overhead
 static GLOBALS: LazyGlobal<Arc<Globals>> = lazy_global!();

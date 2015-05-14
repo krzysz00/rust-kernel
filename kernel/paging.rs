@@ -10,9 +10,6 @@ pub const KERNEL_CR3: usize = 0x1000;
 
 pub type PageTable = [u32; PAGE_TABLE_ENTRIES];
 
-// Overallocate. We'll loop through it to get a page-aligned piece of memory
-// static INITIAL_TABLE_NOTEX: Notex<[u32; PAGE_TABLE_ENTRIES * 3]> = notex!([0; PAGE_TABLE_ENTRIES * 3]);
-
 static NEXT_FRAME_MUTEX: Mutex<u32> = mutex!(0x100);
 
 fn page_table_for(vaddr: u32, next_frame: &mut u32) -> &'static mut PageTable {
