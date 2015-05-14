@@ -94,8 +94,10 @@ pub fn k_main() {
         let globals = smp::globals();
         let bsp_id = globals.bsp;
         log!("I am {}. The main processor is {}\r\n", id, bsp_id);
-        tasks::init();
-        user_mode::init();
+        if tasks::init() {
+            log!("User mode!\r\n");
+            user_mode::init();
+        }
     }
 }
 

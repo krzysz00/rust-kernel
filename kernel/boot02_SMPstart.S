@@ -19,7 +19,7 @@ SMPStart:
 
     mov SMP_STACK_PTR, %esp
     call k_main
-
+loop:   jmp loop
     .code16
 SMPBegin:
     mov $0, %ax
