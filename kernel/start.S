@@ -10,24 +10,24 @@
  *
  */
 
-	.global kStart
+    .global kStart
     .extern kMain
 kStart:
-        mov $0x10, %eax
+    mov $0x10, %eax
 set_up_segments:
-        mov %ax, %ds
-        mov %ax, %es
-        mov %ax, %fs
-        mov %ax, %gs
-        mov %ax, %ss
+    mov %ax, %ds
+    mov %ax, %es
+    mov %ax, %fs
+    mov %ax, %gs
+    mov %ax, %ss
 set_up_stack:
-        movl $stack_here, %esp
-        call k_main
+    movl $stack_here, %esp
+    call k_main
 loop:
-        jmp loop
+    jmp loop
 end:
-        .section .bss
-stack_start:    
-        .skip 8192
+    .section .bss
+stack_start:
+    .skip 8192
 stack_here:
-        .skip 4
+    .skip 4

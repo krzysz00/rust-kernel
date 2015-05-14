@@ -3,3 +3,4 @@ deps/rust
 *.o
 *.a
 kernel/kernel*
+user/user*

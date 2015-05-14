@@ -10,7 +10,7 @@
     
 */
    
-        .code16
+	.code16
 
 	.extern gdtDesc
 	.extern idtDesc

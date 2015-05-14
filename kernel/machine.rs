@@ -9,8 +9,6 @@ extern {
     fn _invlpg(addr: u32);
 
     fn _to_user_mode(entry: u32) -> !;
-
-    fn _syscall(number: u32, arg1: u32, arg2: u32) -> u32;
 }
 
 pub fn inb(port: u16) -> u8 {
@@ -71,8 +69,4 @@ pub fn to_user_mode(handler: extern fn()) -> ! {
     unsafe {
         _to_user_mode(handler as u32)
     }
-}
-
-pub fn syscall(number: u32, arg1: u32, arg2: u32) -> u32 {
-    unsafe { _syscall(number, arg1, arg2) }
 }

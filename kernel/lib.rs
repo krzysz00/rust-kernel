@@ -41,9 +41,9 @@ mod user_mode;
 use vga::Color::*;
 
 pub use interrupts::{idtDesc};
-pub use interrupts::{double_fault_handler, gpf_handler,
-                     page_fault_handler, kbd_interrupt_handler,
-                     write_handler, };
+pub use interrupts::handlers::{double_fault_handler, gpf_handler,
+                               page_fault_handler, kbd_interrupt_handler,
+                               write_handler, exit_handler };
 pub use malloc::{rust_allocate, rust_reallocate, rust_reallocate_inplace,
                  rust_deallocate, rust_usable_size, rust_stats_print };
 pub use smp::{SMP_STACK_PTR, SMP_CR3};
@@ -59,7 +59,7 @@ pub fn k_main() {
         smp::init(Arc::new(smp::Globals {
             processors: acpi::processor_list(),
             bsp: interrupts::apic::id(),
-            the_code: ide::slurp_drive(2),
+            the_code: ide::slurp_drive(0),
         }));
         tasks::init();
 

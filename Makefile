@@ -3,13 +3,16 @@
 RUSTSRC = deps/rust/
 export RUSTSRC
 
-all: all-kernel
+all: kernel user
 
 deps:
 	${MAKE} -C deps all
 
-all-kernel: deps
+kernel: deps
 	${MAKE} -C kernel all
+
+user: deps
+	${MAKE} -C user all
 
 clean:
 	${MAKE} -C kernel clean
