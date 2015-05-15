@@ -7,9 +7,6 @@ use console::Console;
 use user_mode;
 
 use core::slice;
-use malloc::must_allocate;
-use alloc::boxed::Box;
-
 use vga::Color::*;
 
 #[no_mangle]
@@ -35,17 +32,12 @@ pub extern fn page_fault_handler(address: u32, error: u32, _ctx: &mut RawErrCont
         let page = maybe_code_offset >> 12;
         let code_pages = (process.code_len >> 10) + if process.code_len % 1024 == 0 { 0 } else { 1 };
         if page > code_pages {
-            let storage = unsafe {
-                Box::from_raw(must_allocate(paging::PAGE_SIZE, paging::PAGE_SIZE)
-                              as *mut [u8; paging::PAGE_SIZE])
-            };
-            let frame = paging::frame_for(&storage[0] as *const u8 as usize) as u32;
-            process.zero_pages.push(storage);
-            process.page_tables[1][page] = frame | 0x07; // BSS/stack
+            let frame = process.add_page().1;
+            process.pages[0][page] = frame | 0x07; // BSS/stack
         }
         else {
             let frame = paging::frame_for(process.code_addr + maybe_code_offset) as u32;
-            process.page_tables[1][page] = frame | 0x07;
+            process.pages[0][page] = frame | 0x07;
         }
     }
     else {
