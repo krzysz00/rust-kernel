@@ -1,6 +1,7 @@
 .PHONY: all deps clean clean-all all-kernel
 
-RUSTSRC = deps/rust/
+# This is relative to deps/
+RUSTSRC = rust/
 export RUSTSRC
 
 all: kernel user
