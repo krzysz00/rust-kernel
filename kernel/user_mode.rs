@@ -54,7 +54,7 @@ fn create_process(code: &[u32]) -> (usize, usize) {
     let mut pd = new_user_page();
     let system_pd = 0xFF_FF_F000 as *const u32;
     pd[0] = unsafe { *(system_pd) };
-    let tss_pd = &*locals.tss as *const tasks::Tss as usize >> 22;
+    let tss_pd = &locals.tss as *const tasks::Tss as usize >> 22;
     pd[tss_pd] = unsafe { *(system_pd.offset(tss_pd as isize)) };
 
     let mut limit = USER_LOAD_ADDR + code.len() * 4 + 32 * PAGE_TABLE_SIZE; // 32 pages away from end of code

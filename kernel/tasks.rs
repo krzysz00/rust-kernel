@@ -50,7 +50,7 @@ pub fn init() -> bool {
     let index = apic::id() as usize + GDT_FIXED_ENTRIES;
     if index >= GDT_COUNT { return false };
 
-    let ref mut tss = *locals_mut().tss;
+    let ref mut tss = locals_mut().tss;
     // Room for 50 more ints before esp0 starts
     let esp0 = get_esp() - 0x200;
     tss.set_esp0(esp0);

@@ -51,7 +51,7 @@ pub fn globals() -> Arc<Globals> {
 
 #[derive(Default)]
 pub struct Locals {
-    pub tss: Box<Tss>,
+    pub tss: Tss,
     pub processes: VecDeque<Process>,
 }
 
