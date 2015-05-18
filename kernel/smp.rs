@@ -1,8 +1,7 @@
 use core::prelude::*;
 use core::atomic::{AtomicUsize, ATOMIC_USIZE_INIT, Ordering};
 use alloc::arc::Arc;
-use alloc::boxed::Box;
-use collections::{Vec,VecDeque};
+use collections::Vec;
 
 use interrupts::apic;
 use machine::outb;
@@ -52,7 +51,7 @@ pub fn globals() -> Arc<Globals> {
 #[derive(Default)]
 pub struct Locals {
     pub tss: Tss,
-    pub processes: VecDeque<Process>,
+    pub process: Option<Process>,
 }
 
 // I solemnly swear that each processor only gets its own locals

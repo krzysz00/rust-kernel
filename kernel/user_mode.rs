@@ -1,6 +1,6 @@
-use machine::to_user_mode;
 use paging::{PageTable, frame_for, PAGE_TABLE_SIZE, PAGE_SIZE};
-use smp::{locals_mut, globals};
+use smp::{locals, locals_mut, globals};
+use mutex::Mutex;
 use interrupts::{Context,Contextable};
 
 use interrupts::apic;
@@ -9,9 +9,10 @@ use console;
 use malloc::must_allocate;
 
 use core::prelude::*;
+use core::atomic::{AtomicUsize, ATOMIC_USIZE_INIT, Ordering};
 use core::mem::size_of;
 use alloc::boxed::Box;
-use collections::Vec;
+use collections::{Vec,VecDeque};
 
 pub const USER_LOAD_ADDR: usize = 0x400_000;
 
@@ -32,6 +33,9 @@ pub struct Process {
     pub context: Context,
 }
 
+static PROCESSES_LOCK: Mutex<Option<VecDeque<Process>>> = mutex!(None);
+static PID: AtomicUsize = ATOMIC_USIZE_INIT;
+
 impl Process {
     // Adds a page to the process, returning its frame and index in the pages array
     pub fn add_page(&mut self) -> (usize, u32) {
@@ -44,10 +48,11 @@ impl Process {
     }
 }
 
-fn create_process(code: &[u32]) -> (usize, usize) {
+fn create_process(code: &[u32]) {
     let locals = locals_mut();
-    let ref mut processes = locals.processes;
-    let id = processes.len() + 1;
+    let mut lock = PROCESSES_LOCK.lock();
+    let mut processes = lock.as_mut().unwrap();
+    let id = PID.fetch_add(1, Ordering::SeqCst);
 
     let code_addr = &code[0] as *const u32 as usize;
     let code_len = code.len();
@@ -69,41 +74,64 @@ fn create_process(code: &[u32]) -> (usize, usize) {
     process.pages[idx][0] = frame_for(code_addr) as u32 | 0x7;
     process.pd[1] = frame | 0x07; // User, RW, Present
     processes.push_back(process);
-    (limit, cr3)
 }
 
-pub fn get_current_process_mut<'r>() -> &'r mut Process {
-    locals_mut().processes.front_mut().unwrap()
+pub fn current_process<'r>() -> &'r Process {
+    locals().process.as_ref().unwrap()
+}
+
+pub fn current_process_mut<'r>() -> &'r mut Process {
+    locals_mut().process.as_mut().unwrap()
 }
 
 pub fn switch_tasks<T: Contextable>(ctx: &mut T) {
-    let ref mut processes = locals_mut().processes;
-    let mut current_process = processes.pop_front().unwrap();
+    let locals = locals_mut();
+    let mut lock = PROCESSES_LOCK.lock();
+    let mut processes = lock.as_mut().unwrap();
+    let mut current_process = locals.process.take().unwrap();
     ctx.save(&mut current_process.context);
     processes.push_back(current_process);
-    let new_process = processes.front().unwrap();
+    let new_process = processes.pop_front().unwrap();
     ctx.load(&new_process.context);
+    locals.process = Some(new_process);
 }
 
 pub fn kill_current_process<T: Contextable>(ctx: &mut T) {
-    let ref mut processes = locals_mut().processes;
-    let mut current_process = processes.pop_front().unwrap();
+    let locals = locals_mut();
+    let mut current_process = locals.process.take().unwrap();
     ctx.save(&mut current_process.context);
     drop(current_process);
-    match processes.front_mut() {
-        Some(p) => ctx.load(&p.context),
+    let mut lock = PROCESSES_LOCK.lock();
+    match lock.as_mut().unwrap().pop_front() {
+        Some(p) => {
+            ctx.load(&p.context);
+            locals.process = Some(p);
+        },
         None => {
             log!("No more processes on CPU {}\r\n", apic::id());
+            drop(lock);
             loop {}
         }
     }
 }
 pub fn init() -> ! {
+    {
+        let mut lock = PROCESSES_LOCK.lock();
+        if lock.is_none() {
+            *lock = Some(VecDeque::new());
+            PID.store(1, Ordering::SeqCst);
+        }
+    }
     match globals().the_code.as_ref() {
         Some(code) => {
-            let (esp, cr3) = create_process(&code[..]);
             create_process(&code[..]);
-            to_user_mode(USER_LOAD_ADDR, esp, cr3);
+            create_process(&code[..]);
+            let mut lock = PROCESSES_LOCK.lock();
+            let process = lock.as_mut().unwrap().pop_front().unwrap();
+            let locals = locals_mut();
+            locals.process = Some(process);
+            drop(lock);
+            locals.process.as_ref().unwrap().context.to_user_mode();
         }
         None => {
             console::puts("\r\nNo user mode (maybe no disk)\r\n");

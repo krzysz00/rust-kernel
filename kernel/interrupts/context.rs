@@ -1,4 +1,5 @@
 use paging::KERNEL_CR3;
+use machine::to_user_mode;
 
 pub struct RawContext {
     cr3: u32,
@@ -82,6 +83,10 @@ impl Context {
             eip: eip as u32, eflags: 0x202, // IF and the always-1 bit
             esp: esp as u32,
         }
+    }
+
+    pub fn to_user_mode(&self) -> ! {
+        to_user_mode(self.eip, self.esp, self.cr3);
     }
 }
 

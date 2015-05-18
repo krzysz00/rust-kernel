@@ -27,7 +27,7 @@ pub extern fn page_fault_handler(address: u32, error: u32, _ctx: &mut RawErrCont
     }
     let address = address as usize;
     if (error & 0x4) != 0 { // User code needs mapping
-        let process = user_mode::get_current_process_mut();
+        let process = user_mode::current_process_mut();
         let maybe_code_offset = address - user_mode::USER_LOAD_ADDR;
         let page = maybe_code_offset >> 12;
         let code_pages = (process.code_len >> 10) + if process.code_len % 1024 == 0 { 0 } else { 1 };
@@ -83,6 +83,6 @@ pub extern fn sleep_handler(_a: u32, _b: u32, ctx: &mut RawContext) {
 #[no_mangle]
 pub extern fn exit_handler(code: u32, _unused: u32, ctx: &mut RawContext) {
     ctx.kernel_paging();
-    log!("Process exited with code {}\r\n", code);
+    log!("Process {} exited with code {}\r\n", user_mode::current_process().id, code);
     user_mode::kill_current_process(ctx);
 }

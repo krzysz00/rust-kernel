@@ -65,8 +65,9 @@ pub fn get_esp() -> u32 {
     }
 }
 
-pub fn to_user_mode(handler: usize, esp: usize, cr3: usize) -> ! {
+#[inline]
+pub fn to_user_mode(handler: u32, esp: u32, cr3: u32) -> ! {
     unsafe {
-        _to_user_mode(handler as u32, esp as u32, cr3 as u32)
+        _to_user_mode(handler, esp, cr3)
     }
 }
