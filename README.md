@@ -25,6 +25,5 @@ make sure to check out the corresponding source code. (`rustup.sh`,
 which is Rust's installer script, also takes a `--prefix` option).
 
 (*NOTE*: 1.0-stable is not the sources from the day of release.
-There's been an internal library renamed in the meantime, and some
-other changes relevant to this project. Please track nightly until
-1.1-beta)
+I'm currently developing on nightly 2015-05-15 and the sources for
+1.1-beta. Newer nightlies should work fire, however.)
