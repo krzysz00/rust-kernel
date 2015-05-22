@@ -43,7 +43,7 @@ unsafe fn checksum(start: *const u8, length: isize) -> bool {
 }
 
 fn validate_rsdp(candidate: &RSDP) -> bool {
-    let sig: &[u8] = &(*candidate).signature;
+    let sig: &[u8] = &candidate.signature;
     if sig != b"RSD PTR " {
         return false
     }
