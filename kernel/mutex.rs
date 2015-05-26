@@ -16,6 +16,7 @@ pub struct HeldMutex<'a, T: 'a> {
 }
 
 impl<T> Mutex<T> {
+    // TODO: Make this a const fn and remove the macro when 1.2 hits
     pub fn new(t: T) -> Mutex<T> {
         Mutex { lock: AtomicBool::new(false), data: UnsafeCell::new(t) }
     }
