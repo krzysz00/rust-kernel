@@ -20,7 +20,8 @@ const MAX_PRIME: u32 = 10000;
 
 #[lang="start"]
 #[no_mangle]
-pub fn main() {
+pub fn main(pid: u32) {
+    print!("I am process {}\r\n", pid);
     console::puts("Searching for primes\r\n");
     for i in 2..MAX_PRIME {
         let mut is_prime = true;

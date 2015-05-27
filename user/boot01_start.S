@@ -1,3 +1,4 @@
+    # The PID is on the stack
     .globl start
 start:
     call main

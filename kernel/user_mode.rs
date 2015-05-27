@@ -68,11 +68,19 @@ fn create_process(code: &[u32]) {
 
     let mut process = Process { id: id as u32, pd: pd, pages: Vec::new(),
                                 code_addr: code_addr, code_len: code_len,
-                                context: Context::new(USER_LOAD_ADDR, limit, cr3) };
+                                context: Context::new(USER_LOAD_ADDR,
+                                                      limit - size_of::<u32>(),
+                                                      cr3) };
 
-    let (idx, frame) = process.add_page();
-    process.pages[idx][0] = frame_for(code_addr) as u32 | 0x7;
-    process.pd[1] = frame | 0x07; // User, RW, Present
+    let (pt_idx, pt_frame) = process.add_page();
+    process.pages[pt_idx][0] = frame_for(code_addr) as u32 | 0x7;
+
+    let (stack_idx, stack_frame) = process.add_page();
+    let stack_ppn = ((limit >> 12) - 1) & 0x3ff;
+    process.pages[pt_idx][stack_ppn] = stack_frame as u32 | 0x7;
+    process.pages[stack_idx][1023] = id as u32;
+
+    process.pd[1] = pt_frame | 0x07; // User, RW, Present
     processes.push_back(process);
 }
 
