@@ -73,8 +73,6 @@ fn create_process(code: &[u32]) {
                                                       cr3) };
 
     let (pt_idx, pt_frame) = process.add_page();
-    process.pages[pt_idx][0] = frame_for(code_addr) as u32 | 0x7;
-
     let (stack_idx, stack_frame) = process.add_page();
     let stack_ppn = ((limit >> 12) - 1) & 0x3ff;
     process.pages[pt_idx][stack_ppn] = stack_frame as u32 | 0x7;
