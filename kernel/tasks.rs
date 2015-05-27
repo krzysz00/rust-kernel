@@ -23,7 +23,7 @@ extern {
 }
 
 // Let's not concurrently modify the GDT
-static GDT_MUTEX: Mutex<()> = mutex!(());
+static GDT_MUTEX: Mutex<()> = Mutex::new(());
 
 pub struct Tss {
     _prev: u32,

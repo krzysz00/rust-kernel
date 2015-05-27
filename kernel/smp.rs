@@ -1,5 +1,5 @@
 use core::prelude::*;
-use core::atomic::{AtomicUsize, ATOMIC_USIZE_INIT, Ordering};
+use core::atomic::{AtomicUsize, Ordering};
 use alloc::arc::Arc;
 use collections::Vec;
 
@@ -14,12 +14,12 @@ extern {
 }
 
 #[allow(non_upper_case_globals)]
-pub static processor_count: AtomicUsize = ATOMIC_USIZE_INIT;
+pub static processor_count: AtomicUsize = AtomicUsize::new(0);
 
 #[no_mangle]
-pub static SMP_STACK_PTR: AtomicUsize = ATOMIC_USIZE_INIT;
+pub static SMP_STACK_PTR: AtomicUsize = AtomicUsize::new(0);
 #[no_mangle]
-pub static SMP_CR3: AtomicUsize = ATOMIC_USIZE_INIT;
+pub static SMP_CR3: AtomicUsize = AtomicUsize::new(0);
 
 pub struct Globals {
     pub processors: Vec<u8>,
@@ -29,7 +29,7 @@ pub struct Globals {
 
 // I'm satisfied that there are no race conditions (Arc is atomic)
 // and I don't want the overhead
-static GLOBALS: LazyGlobal<Arc<Globals>> = lazy_global!();
+static GLOBALS: LazyGlobal<Arc<Globals>> = LazyGlobal::new();
 
 fn send_startup_interrupt(address: u32, id: u8) {
     outb(0x70, 0x0F);
@@ -55,7 +55,7 @@ pub struct Locals {
 }
 
 // I solemnly swear that each processor only gets its own locals
-static PROCESSOR_LOCALS: LazyGlobal<Vec<Locals>> = lazy_global!();
+static PROCESSOR_LOCALS: LazyGlobal<Vec<Locals>> = LazyGlobal::new();
 
 fn init_locals_vector(num_processors: usize) {
     unsafe {

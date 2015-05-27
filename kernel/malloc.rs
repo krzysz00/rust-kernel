@@ -11,7 +11,7 @@ use mutex::Mutex;
 
 // This mutex does not guard anything.
 // However, all top-level functions that manipulate the heap must take it
-static HEAP_MUTEX: Mutex<()> = mutex!(());
+static HEAP_MUTEX: Mutex<()> = Mutex::new(());
 
 const MAX_ORDER: u8 = 22;
 const BLOCK_BITS: u8 = 5;

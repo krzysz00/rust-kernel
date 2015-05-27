@@ -6,7 +6,7 @@ use core::result::Result;
 const PORT: u16 = 0x3F8;
 pub struct Console;
 
-static CONSOLE_LOCK: Mutex<()> = mutex!(());
+static CONSOLE_LOCK: Mutex<()> = Mutex::new(());
 
 impl Console {
     pub fn write_bytes(&self, bytes: &[u8]) {

@@ -16,6 +16,14 @@ Run this by loading `kernel/kernel.img` and `user/user.img` into `qemu`
 The kernel should be the first hard drive (hda).
 The user program should be provided as the second hard drive (hdb).
 
+# Rust version
+
+**TEMPORARY CHANGE**: Nightly rust now lets you call `const` functions
+in global constructors. This makes some code simpler and eliminates
+several macros. However, this feature requires nightly 2015-05-17 or
+newer and will not be available in beta until 1.2, which arrives at
+the end of June. Please track nightly until then.
+
 This code uses some unstable features (like inline assembly). To use
 unstable features, you need a nightly build of the compiler. Since
 tracking the nightly branch might be a bad idea, you can use

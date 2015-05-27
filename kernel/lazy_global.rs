@@ -2,13 +2,17 @@ use core::prelude::*;
 use core::cell::UnsafeCell;
 
 pub struct LazyGlobal<T> {
-    pub data: UnsafeCell<Option<T>>,
+    data: UnsafeCell<Option<T>>,
 }
 
 unsafe impl<T: Send> Send for LazyGlobal<T> { }
 unsafe impl<T: Send> Sync for LazyGlobal<T> { }
 
 impl<T> LazyGlobal<T> {
+    pub const fn new() -> LazyGlobal<T> {
+        LazyGlobal { data: UnsafeCell::new(None) }
+    }
+
     // You must call this before using the global
     pub unsafe fn init(&self, val: T) {
         *self.data.get() = Some(val);
@@ -27,16 +31,4 @@ impl<T> LazyGlobal<T> {
             None => panic!("Lazy global not initialized")
         }
     }
-}
-
-#[macro_export]
-macro_rules! lazy_global {
-    () => (
-        $crate::lazy_global::LazyGlobal {
-            data: ::core::cell::UnsafeCell { value: ::core::option::Option::None }
-        });
-    ($ty:ty) => (
-        $crate::lazy_global::LazyGlobal<$ty> {
-            data: ::core::cell::UnsafeCell<$ty> { value: ::core::option::Option::None }
-        });
 }

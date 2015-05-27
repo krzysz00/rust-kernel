@@ -1,4 +1,7 @@
-#![feature(no_std,lang_items,asm,core,alloc,collections,step_by)]
+#![feature(no_std,lang_items,asm)]
+#![feature(core,alloc,collections)]
+#![feature(step_by,const_fn)]
+
 #![no_std]
 
 #![crate_type="staticlib"]
@@ -18,9 +21,7 @@ use collections::String;
 
 extern crate rlibc;
 
-#[macro_use]
 mod mutex;
-#[macro_use]
 mod lazy_global;
 
 mod machine;

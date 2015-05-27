@@ -4,8 +4,8 @@ use core::ops::{Deref,DerefMut};
 use core::atomic::{fence, Ordering, AtomicBool};
 
 pub struct Mutex<T> {
-    pub lock: AtomicBool,
-    pub data: UnsafeCell<T>,
+    lock: AtomicBool,
+    data: UnsafeCell<T>,
 }
 
 unsafe impl<T: Send> Send for Mutex<T> { }
@@ -17,7 +17,7 @@ pub struct HeldMutex<'a, T: 'a> {
 
 impl<T> Mutex<T> {
     // TODO: Make this a const fn and remove the macro when 1.2 hits
-    pub fn new(t: T) -> Mutex<T> {
+    pub const fn new(t: T) -> Mutex<T> {
         Mutex { lock: AtomicBool::new(false), data: UnsafeCell::new(t) }
     }
 
@@ -51,18 +51,4 @@ impl<'lock, T> Drop for HeldMutex<'lock, T> {
     fn drop(&mut self) {
         self.mutex.unlock();
     }
-}
-
-#[macro_export]
-macro_rules! mutex {
-    ($val:expr) => (
-        $crate::mutex::Mutex {
-            lock: ::core::atomic::ATOMIC_BOOL_INIT,
-            data: ::core::cell::UnsafeCell { value: $val }
-        });
-    ($ty:ty, $val:expr) => (
-        $crate::mutex::Mutex<$ty> {
-            lock: core::atomic::ATOMIC_BOOL_INIT,
-            data: ::core::cell::UnsafeCell<$ty> { value: $val }
-        });
 }

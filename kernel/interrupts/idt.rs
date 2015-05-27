@@ -9,7 +9,7 @@ const IDT_COUNT: usize = 256;
 pub static mut idt_desc: TableDescriptor = TableDescriptor{limit: 0 , base: 0};
 
 static IDT_MUTEX: Mutex<[Descriptor; IDT_COUNT]> =
-    mutex!([ Descriptor { f0: 0, f1: 0 } ; IDT_COUNT]);
+    Mutex::new([ Descriptor { f0: 0, f1: 0 } ; IDT_COUNT]);
 
 extern {
     fn lidt2();

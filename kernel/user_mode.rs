@@ -9,7 +9,7 @@ use console;
 use malloc::must_allocate;
 
 use core::prelude::*;
-use core::atomic::{AtomicUsize, ATOMIC_USIZE_INIT, Ordering};
+use core::atomic::{AtomicUsize, Ordering};
 use core::mem::size_of;
 use alloc::boxed::Box;
 use collections::{Vec,VecDeque};
@@ -33,8 +33,8 @@ pub struct Process {
     pub context: Context,
 }
 
-static PROCESSES_LOCK: Mutex<Option<VecDeque<Process>>> = mutex!(None);
-static PID: AtomicUsize = ATOMIC_USIZE_INIT;
+static PROCESSES_LOCK: Mutex<Option<VecDeque<Process>>> = Mutex::new(None);
+static PID: AtomicUsize = AtomicUsize::new(1);
 
 impl Process {
     // Adds a page to the process, returning its frame and index in the pages array
@@ -125,7 +125,6 @@ pub fn init() -> ! {
         let mut lock = PROCESSES_LOCK.lock();
         if lock.is_none() {
             *lock = Some(VecDeque::new());
-            PID.store(1, Ordering::SeqCst);
         }
     }
     match globals().the_code.as_ref() {

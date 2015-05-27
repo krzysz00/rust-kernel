@@ -10,7 +10,7 @@ pub const KERNEL_CR3: usize = 0x1000;
 
 pub type PageTable = [u32; PAGE_TABLE_ENTRIES];
 
-static NEXT_FRAME_MUTEX: Mutex<u32> = mutex!(0x100);
+static NEXT_FRAME_MUTEX: Mutex<u32> = Mutex::new(0x100);
 
 fn page_table_for(vaddr: u32, next_frame: &mut u32) -> &'static mut PageTable {
     let pd_index = vaddr >> 22;
