@@ -40,7 +40,7 @@ mod user_mode;
 
 use vga::Color::*;
 
-pub use interrupts::{idtDesc};
+pub use interrupts::{idt_desc};
 pub use interrupts::handlers::{double_fault_handler, gpf_handler,
                                page_fault_handler, broadcast_timer_handler,
                                timer_handler, kbd_interrupt_handler,

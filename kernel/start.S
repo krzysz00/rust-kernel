@@ -10,17 +10,16 @@
  *
  */
 
-    .global kStart
-    .extern kMain
-kStart:
+    .global k_start
+    .extern k_main
+k_start:
     mov $0x10, %eax
-set_up_segments:
     mov %ax, %ds
     mov %ax, %es
     mov %ax, %fs
     mov %ax, %gs
     mov %ax, %ss
-set_up_stack:
+
     movl $stack_here, %esp
     call k_main
 loop:

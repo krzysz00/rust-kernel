@@ -4,7 +4,7 @@ pub mod apic;
 pub mod handlers;
 pub mod context;
 
-pub use self::idt::{idtDesc};
+pub use self::idt::{idt_desc};
 pub use self::context::{Context,Contextable};
 
 #[link(name="asmcode", repr="static")]

@@ -12,8 +12,8 @@
    
 	.code16
 
-	.extern gdtDesc
-	.extern idtDesc
+	.extern gdt_desc
+	.extern tmp_idt_desc
 
 	.global start
 start:
@@ -48,7 +48,7 @@ start:
 	movb $0,1(%si)		# unused
 	add $-1,%cx		# -1 sector
 	movw %cx,2(%si)		# number of sectors
-	movw $loadKernelHere,4(%si)	# buffer offset
+	movw $load_kernel_here,4(%si)	# buffer offset
 	movw $0,6(%si)		# buffer segment
 	movw $1,8(%si)		# starting sector number
 	movw $0,10(%si)
@@ -60,10 +60,10 @@ start:
 	int $0x13		# read the sectors
 
 	# load the gdt
-	lgdt gdtDesc
+	lgdt gdt_desc
 
 	# load the idt
-	lidt tmpIdtDesc # needed if idtDesc moves past 0xffff
+	lidt tmp_idt_desc # needed if idtDesc moves past 0xffff
 
 	# enable protected mode, still running in 16 bit segment with
 	# original segments
@@ -80,11 +80,10 @@ start:
 
 
 	# do a far jump to the kernel entry point in 32 bit mode
-	ljmp $8,$kStart
+	ljmp $8,$k_start
 end:
 	.skip 510 - (end - start)
 	.byte 0x55
 	.byte 0xaa
 
-loadKernelHere:
-
+load_kernel_here:

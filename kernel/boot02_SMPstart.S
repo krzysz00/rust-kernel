@@ -1,12 +1,12 @@
     .globl smp_init_vector
-    .extern gdtDesc
-    .extern idtDesc
+    .extern gdt_desc
+    .extern idt_desc
     .extern SMP_STACK_PTR
     .extern SMP_CR3
     .extern k_main
     .section .text
-SMPStart:
-    lidt idtDesc
+smp_start:
+    lidt idt_desc
     mov SMP_CR3, %eax
     mov %eax, %cr3
     mov %cr0, %eax
@@ -21,12 +21,12 @@ SMPStart:
     call k_main
 loop:   jmp loop
     .code16
-SMPBegin:
+smp_begin:
     mov $0, %ax
     mov %ax, %ds
     mov %ax, %ss
 
-    lgdt gdtDesc
+    lgdt gdt_desc
 
     mov %cr0, %eax
     or $1, %eax
@@ -39,8 +39,8 @@ SMPBegin:
     mov %ax, %gs
     mov %ax, %ss
 
-    ljmp $8, $SMPStart
-SMP_end:
-    .skip 512 - (SMP_end - SMPStart)
+    ljmp $8, $smp_start
+smp_end:
+    .skip 512 - (smp_end - smp_start)
 smp_init_vector:
-    ljmp $0, $SMPBegin
+    ljmp $0, $smp_begin

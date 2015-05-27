@@ -1,7 +1,7 @@
     .globl gdt
-    .globl gdtDesc
-    .extern idtDesc
-    .globl tmpIdtDesc
+    .globl gdt_desc
+    .extern idt_desc
+    .globl tmp_idt_desc
     .globl lidt2
 gdt:
     .long 0, 0
@@ -12,13 +12,13 @@ gdt:
     .rept 10 - 5
     .long 0, 0
     .endr
-gdtEnd:
-gdtDesc:
-    .word (gdtEnd - gdt - 1)
+gdt_end:
+gdt_desc:
+    .word (gdt_end - gdt - 1)
     .long gdt
-tmpIdtDesc:
+tmp_idt_desc:
     .word 0
     .long 0
 lidt2:
-    lidt idtDesc
+    lidt idt_desc
     ret
