@@ -20,7 +20,7 @@ The user program should be provided as the second hard drive (hdb).
 
 **TEMPORARY CHANGE**: Nightly rust now lets you call `const` functions
 in global constructors. This makes some code simpler and eliminates
-several macros. However, this feature requires nightly 2015-05-17 or
+several macros. However, this feature requires nightly 2015-05-27 or
 newer and will not be available in beta until 1.2, which arrives at
 the end of June. Please track nightly until then.
 
