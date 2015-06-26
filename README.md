@@ -18,11 +18,8 @@ The user program should be provided as the second hard drive (hdb).
 
 # Rust version
 
-**TEMPORARY CHANGE**: Nightly rust now lets you call `const` functions
-in global constructors. This makes some code simpler and eliminates
-several macros. However, this feature requires nightly 2015-05-27 or
-newer and will not be available in beta until 1.2, which arrives at
-the end of June. Please track nightly until then.
+The current recommended compiler/sources are 1.2 beta sources and
+nightly >= 2015-06-24
 
 This code uses some unstable features (like inline assembly). To use
 unstable features, you need a nightly build of the compiler. Since
@@ -31,7 +28,3 @@ tracking the nightly branch might be a bad idea, you can use
 to get as close to the beta build as possible. When you do that,
 make sure to check out the corresponding source code. (`rustup.sh`,
 which is Rust's installer script, also takes a `--prefix` option).
-
-(*NOTE*: 1.0-stable is not the sources from the day of release.
-I'm currently developing on nightly 2015-05-15 and the sources for
-1.1-beta. Newer nightlies should work fire, however.)

@@ -1,5 +1,6 @@
 #![feature(no_std,lang_items,asm)]
 #![feature(core,alloc,collections)]
+#![feature(core_prelude,core_intrinsics,box_raw)]
 #![feature(step_by,const_fn)]
 
 #![no_std]
@@ -82,7 +83,7 @@ pub fn k_main() {
         vga::write_char(15,4,*heap);
         vga::write_char_with_color(15, 5, *heap2, LightGray, Pink);
 
-        let mut string = String::from_str("Hello, ");
+        let mut string = String::from("Hello, ");
         string.push_str("paging");
         vga::write_string(3,5,&string);
         unsafe { *(0xB0_00_00_01 as *mut u32) = 0xcafecafe; }

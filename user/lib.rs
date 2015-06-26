@@ -1,4 +1,5 @@
-#![feature(no_std,lang_items,core)]
+#![feature(no_std,lang_items)]
+#![feature(core,core_prelude,alloc,collections)]
 #![no_std]
 
 #![crate_type="staticlib"]
@@ -6,6 +7,8 @@
 
 #[macro_use]
 extern crate core;
+extern crate alloc;
+extern crate collections;
 
 use core::prelude::*;
 use core::fmt;

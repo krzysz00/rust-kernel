@@ -1,5 +1,3 @@
-use core::prelude::*;
-
 #[link(name = "asmcode", repr="static")]
 extern {
     fn _syscall(number: u32, arg1: u32, arg2: u32) -> u32;
