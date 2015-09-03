@@ -8,8 +8,7 @@ use tasks;
 use console;
 use malloc::must_allocate;
 
-use core::prelude::*;
-use core::atomic::{AtomicUsize, Ordering};
+use core::sync::atomic::{AtomicUsize, Ordering};
 use core::mem::size_of;
 use alloc::boxed::Box;
 use collections::{Vec,VecDeque};

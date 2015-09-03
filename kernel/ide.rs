@@ -1,4 +1,3 @@
-use core::prelude::*;
 use machine::{outb, inb, inl};
 use malloc::must_allocate;
 use core::slice;

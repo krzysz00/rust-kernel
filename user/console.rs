@@ -1,6 +1,5 @@
 use syscall::write;
 
-use core::prelude::*;
 use core::fmt::{Write,Error};
 
 pub struct Console;

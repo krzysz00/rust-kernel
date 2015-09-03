@@ -20,7 +20,6 @@ pub enum Color {
 
 use machine;
 
-use core::prelude::*;
 
 pub const ROWS: usize = 25;
 pub const COLS: usize = 80;

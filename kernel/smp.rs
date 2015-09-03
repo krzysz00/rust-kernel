@@ -1,5 +1,4 @@
-use core::prelude::*;
-use core::atomic::{AtomicUsize, Ordering};
+use core::sync::atomic::{AtomicUsize, Ordering};
 use alloc::arc::Arc;
 use collections::Vec;
 

@@ -71,7 +71,7 @@ pub fn init() {
         }
 
         (*pd)[1023] = (alligned_pd_addr as u32) | PRESENT_RW; // The "recursive paging trick"
-        smp::SMP_CR3.store(alligned_pd_addr, ::core::atomic::Ordering::SeqCst);
+        smp::SMP_CR3.store(alligned_pd_addr, ::core::sync::atomic::Ordering::SeqCst);
         machine::enable_paging(alligned_pd_addr as *const u32);
     }
 }

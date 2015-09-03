@@ -4,7 +4,7 @@ const HEAP_START: usize = 0xC0_00_00_00;
 use core::cmp;
 use core::ptr::null_mut;
 use core::option::Option::{self, Some, None};
-use core::atomic::{AtomicBool, ATOMIC_BOOL_INIT, Ordering};
+use core::sync::atomic::{AtomicBool, ATOMIC_BOOL_INIT, Ordering};
 use core::intrinsics::copy_nonoverlapping;
 
 use mutex::Mutex;

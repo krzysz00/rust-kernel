@@ -1,6 +1,6 @@
 #![feature(no_std,lang_items,asm)]
-#![feature(core,alloc,collections)]
-#![feature(core_prelude,core_intrinsics,box_raw)]
+#![feature(alloc,collections)]
+#![feature(core_intrinsics,box_raw)]
 #![feature(step_by,const_fn)]
 
 #![no_std]
@@ -9,13 +9,12 @@
 #![crate_name="rustcode"]
 
 #[macro_use]
-extern crate core;
+extern crate alloc_shim;
 extern crate alloc;
 extern crate collections;
 
-use core::prelude::*;
 use core::fmt;
-use core::atomic::Ordering;
+use core::sync::atomic::Ordering;
 use alloc::boxed::Box;
 use alloc::arc::Arc;
 use collections::String;
