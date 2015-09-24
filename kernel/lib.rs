@@ -1,6 +1,6 @@
 #![feature(no_std,lang_items,asm)]
 #![feature(alloc,collections)]
-#![feature(core_intrinsics,box_raw)]
+#![feature(core_intrinsics)]
 #![feature(step_by,const_fn)]
 
 #![no_std]
