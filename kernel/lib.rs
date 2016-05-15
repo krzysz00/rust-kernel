@@ -1,4 +1,4 @@
-#![feature(no_std,lang_items,asm)]
+#![feature(lang_items,asm,drop_types_in_const)]
 #![feature(alloc,collections)]
 #![feature(core_intrinsics)]
 #![feature(step_by,const_fn)]
@@ -102,7 +102,7 @@ pub fn k_main() {
     }
 }
 
-#[lang = "stack_exhausted"] extern fn stack_exhausted() {}
+//#[lang = "stack_exhausted"] extern fn stack_exhausted() {}
 #[lang = "eh_personality"] extern fn eh_personality() {}
 
 #[lang = "panic_fmt"]

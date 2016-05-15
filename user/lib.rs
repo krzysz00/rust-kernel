@@ -1,4 +1,4 @@
-#![feature(no_std,lang_items)]
+#![feature(lang_items)]
 #![feature(alloc,collections)]
 #![no_std]
 
@@ -42,7 +42,7 @@ pub fn main(pid: u32) {
     }
 }
 
-#[lang = "stack_exhausted"] extern fn stack_exhausted() {}
+//#[lang = "stack_exhausted"] extern fn stack_exhausted() {}
 #[lang = "eh_personality"] extern fn eh_personality() {}
 
 #[lang = "panic_fmt"]
