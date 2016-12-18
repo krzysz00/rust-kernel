@@ -177,7 +177,7 @@ fn to_order(size: usize, align: usize) -> u8 {
 }
 
 #[no_mangle]
-pub unsafe extern fn rust_allocate(size: usize, align: usize) -> *mut u8 {
+pub unsafe extern fn __rust_allocate(size: usize, align: usize) -> *mut u8 {
     let _lock = HEAP_MUTEX.lock();
     let order = to_order(size + 1, align);
     match find_block_of_order(order) {
@@ -191,11 +191,11 @@ pub unsafe extern fn rust_allocate(size: usize, align: usize) -> *mut u8 {
 
 #[inline]
 pub unsafe fn malloc(size: usize) -> *mut u8 {
-    rust_allocate(size, 1)
+    __rust_allocate(size, 1)
 }
 
 pub fn must_allocate(size: usize, align: usize) -> *mut u8 {
-    let ptr = unsafe { rust_allocate(size, align) };
+    let ptr = unsafe { __rust_allocate(size, align) };
     if !ptr.is_null() {
         ptr
     }
@@ -204,10 +204,9 @@ pub fn must_allocate(size: usize, align: usize) -> *mut u8 {
     }
 }
 
-#[inline]
 #[no_mangle]
-pub unsafe extern fn rust_deallocate(ptr: *mut u8,
-                                     _old_size: usize, _align: usize) {
+pub unsafe extern fn __rust_deallocate(ptr: *mut u8,
+                                       _old_size: usize, _align: usize) {
     free(ptr)
 }
 
@@ -220,12 +219,12 @@ pub unsafe fn free(ptr: *mut u8) {
 
 #[inline]
 pub unsafe fn realloc(ptr: *mut u8, size: usize) -> *mut u8 {
-    rust_reallocate(ptr, 1, size, 1)
+    __rust_reallocate(ptr, 1, size, 1)
 }
 
 #[no_mangle]
-pub unsafe extern fn rust_reallocate(ptr: *mut u8, _old_size: usize,
-                                     size: usize, align: usize) -> *mut u8 {
+pub unsafe extern fn __rust_reallocate(ptr: *mut u8, _old_size: usize,
+                                       size: usize, align: usize) -> *mut u8 {
     let _lock = HEAP_MUTEX.lock();
     let block = to_block(ptr);
     let new_order = to_order(size + 1, align);
@@ -248,8 +247,8 @@ pub unsafe extern fn rust_reallocate(ptr: *mut u8, _old_size: usize,
 }
 
 #[no_mangle]
-pub unsafe extern fn rust_reallocate_inplace(ptr: *mut u8, old_size: usize,
-                                             size: usize, align: usize) -> usize {
+pub unsafe extern fn __rust_reallocate_inplace(ptr: *mut u8, old_size: usize,
+                                               size: usize, align: usize) -> usize {
     let _lock = HEAP_MUTEX.lock();
     let block = to_block(ptr);
     let new_order = to_order(size + 1, align);
@@ -257,15 +256,15 @@ pub unsafe extern fn rust_reallocate_inplace(ptr: *mut u8, old_size: usize,
         block_size(block.order)
     }
     else {
-        rust_usable_size(old_size, align)
+        __rust_usable_size(old_size, align)
     }
 }
 
 #[no_mangle]
-pub extern fn rust_usable_size(size: usize, align: usize) -> usize {
+pub extern fn __rust_usable_size(size: usize, align: usize) -> usize {
     let order = to_order(size + 1, align);
     block_size(order)
 }
 
 #[no_mangle]
-pub extern fn rust_stats_print() {}
+pub extern fn __rust_stats_print() {}

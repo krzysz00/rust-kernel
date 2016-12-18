@@ -1,7 +1,7 @@
 .PHONY: clean
 
 vpath %.rs interrupts/
-RUSTFLAGS += --target=../i686-unknown-elf.json -L. -L${DEPDIR} -g -C opt-level=3 -Z no-landing-pads
+RUSTFLAGS += --target=../i686-unknown-elf.json -L. -L${DEPDIR} -g -C opt-level=3 -C panic=abort
 
 RUSTC = rustc
 RUSTFILES = $(notdir $(wildcard *.rs) $(wildcard interrupts/*.rs))

@@ -46,6 +46,7 @@ pub fn main(pid: u32) {
 #[lang = "eh_personality"] extern fn eh_personality() {}
 
 #[lang = "panic_fmt"]
+#[no_mangle]
 pub extern fn rust_begin_unwind(args: fmt::Arguments,
                                 file: &'static str, line: u32) -> ! {
     use core::fmt::Write;

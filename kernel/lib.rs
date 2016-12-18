@@ -46,8 +46,8 @@ pub use interrupts::handlers::{double_fault_handler, gpf_handler,
                                page_fault_handler, broadcast_timer_handler,
                                timer_handler, kbd_interrupt_handler,
                                write_handler, sleep_handler, exit_handler };
-pub use malloc::{rust_allocate, rust_reallocate, rust_reallocate_inplace,
-                 rust_deallocate, rust_usable_size, rust_stats_print };
+pub use malloc::{__rust_allocate, __rust_reallocate, __rust_reallocate_inplace,
+                 __rust_deallocate, __rust_usable_size, __rust_stats_print };
 pub use smp::{SMP_STACK_PTR, SMP_CR3};
 
 #[lang="start"]
@@ -106,8 +106,9 @@ pub fn k_main() {
 #[lang = "eh_personality"] extern fn eh_personality() {}
 
 #[lang = "panic_fmt"]
-pub extern fn rust_begin_unwind(args: fmt::Arguments,
-                                file: &'static str, line: u32) -> ! {
+#[no_mangle]
+pub extern fn rust_begin_panic(args: fmt::Arguments,
+                               file: &'static str, line: u32) -> ! {
     use core::fmt::Write;
     log!("\r\nPanic at {}:{}: ", file, line);
     let _ = console::Console.write_fmt(args);

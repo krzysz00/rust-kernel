@@ -1,7 +1,7 @@
 .PHONY: all deps clean clean-all all-kernel
 
 # This is relative to deps/
-RUSTSRC = rust/
+RUSTSRC ?= $(shell rustc --print sysroot)/lib/rustlib/src/rust/
 export RUSTSRC
 
 all: kernel user
